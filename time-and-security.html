@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>过去十二年，钱是怎么被拿走的 · 过去攻击事件</title>
+<meta name="description" content="2014–2026 十三起最大的加密攻击事件：损失金额、发现用了多久、时间上到底哪里出了错。附与钱包授权检查的逐条对应。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="过去十二年，钱是怎么被拿走的">
+<meta property="og:description" content="十三起最大的加密攻击：Mt.Gox、Ronin、Bybit、币安……损失、发现延迟、以及时间上真正出问题的那一处。">
+<meta property="og:image" content="https://approveguard.app.workbuddy.host/og-report.png?sharecode=6MNQ32DLT2">
+<meta property="og:url" content="https://approveguard.app.workbuddy.host/time-and-security.html?sharecode=6MNQ32DLT2">
+<meta name="twitter:card" content="summary_large_image">
+<script>document.documentElement.className+=' js';</script>
+<style>
+/* ============================================================
+   攻击事件档案 · 独立排版
+   光学字号 + 玻璃层级 + 弹簧过渡（Apple 流体界面）
+   ============================================================ */
+:root{
+  --bg:#08090b;
+  --bg-2:#0c0e12;
+  --line:rgba(255,255,255,.075);
+  --line-2:rgba(255,255,255,.13);
+  --txt:#f2f4f8;
+  --dim:#9aa1b1;
+  --dim2:#6b7280;
+  --crit:#ff453a;
+  --high:#ff9f0a;
+  --med:#ffd60a;
+  --low:#30d158;
+  --accent:#0a84ff;
+  --accent-2:#64a8ff;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  /* 弹簧曲线：Apple 抽屉 0.8/0.3、普通位移 1.0/0.4 的 Web 映射 */
+  --spring:cubic-bezier(.32,.72,0,1);
+  --spring-soft:cubic-bezier(.22,1,.36,1);
+  --spring-pop:cubic-bezier(.34,1.36,.64,1);
+  --pill:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:hidden}
+body{
+  background:
+    radial-gradient(900px 520px at 82% -180px,rgba(10,132,255,.14),transparent 70%),
+    radial-gradient(700px 420px at 6% 4%,rgba(255,69,58,.06),transparent 72%),
+    var(--bg);
+  color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:16px;line-height:1.75;letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;
+  padding:0 22px 120px;
+}
+.wrap{max-width:1040px;margin:0 auto}
+::selection{background:rgba(10,132,255,.32)}
+
+/* ---------- 玻璃顶栏 ---------- */
+.nav{
+  position:sticky;top:0;z-index:40;
+  margin:0 -22px;padding:0 22px;
+  background:rgba(8,9,11,0);
+  border-bottom:1px solid transparent;
+  transition:background .45s var(--spring-soft),border-color .45s var(--spring-soft);
+}
+.nav.stuck{
+  background:rgba(8,9,11,.74);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom-color:var(--line);
+}
+.nav-in{max-width:1040px;margin:0 auto;height:60px;display:flex;align-items:center;gap:10px}
+.logo{width:24px;height:24px;border:1.6px solid var(--accent);border-radius:7px;position:relative;flex:0 0 auto}
+.logo::after{content:"";position:absolute;inset:5.5px;background:var(--accent);border-radius:2px;opacity:.9}
+.brand{font-size:14.5px;font-weight:600;letter-spacing:-.1px}
+.brand span{color:var(--dim2);font-weight:400;margin-left:8px;font-size:11px;letter-spacing:1.1px;text-transform:uppercase}
+.nav-sp{flex:1}
+.pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:32px;padding:0 13px;border-radius:var(--pill);
+  font-size:13px;color:var(--dim);text-decoration:none;
+  border:1px solid var(--line);background:rgba(255,255,255,.02);
+  transition:transform .45s var(--spring-pop),color .2s,border-color .2s,background .2s;
+}
+.pill:hover{color:var(--txt);border-color:var(--line-2);background:rgba(255,255,255,.05)}
+.pill:active{transform:scale(.955)}
+
+/* ---------- 首屏 ---------- */
+.hero{padding:74px 0 0}
+.eyebrow{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:2.6px;text-transform:uppercase;
+  color:var(--accent-2);display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:22px;height:1px;background:currentColor;opacity:.6}
+h1{
+  font-size:clamp(34px,5.4vw,60px);line-height:1.1;letter-spacing:-1.4px;text-wrap:balance;
+  font-weight:700;margin-top:22px;max-width:920px;
+}
+h1 em{
+  font-style:normal;
+  background:linear-gradient(92deg,#ff7a70,#ff453a 55%,#ff9f0a);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  white-space:nowrap;
+}
+.lede{margin-top:24px;font-size:17px;line-height:1.8;color:var(--dim);max-width:640px;text-wrap:pretty}
+.lede b{color:var(--txt);font-weight:600}
+
+.figures{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
+  margin-top:56px;background:var(--line);border:1px solid var(--line);
+  border-radius:20px;overflow:hidden;
+}
+.fig{background:var(--bg-2);padding:24px 26px}
+.fig .n{
+  font-family:var(--mono);font-size:clamp(24px,3.2vw,31px);font-weight:600;
+  letter-spacing:-1.2px;line-height:1.1;font-variant-numeric:tabular-nums;
+}
+.fig .l{color:var(--dim2);font-size:12.5px;line-height:1.55;margin-top:8px}
+.fig.c .n{color:var(--crit)} .fig.h .n{color:var(--high)} .fig.a .n{color:var(--accent-2)}
+
+/* ---------- 筛选条 ---------- */
+.filters{
+  position:sticky;top:60px;z-index:30;
+  margin:0 -22px;padding:14px 22px;
+  background:rgba(8,9,11,0);
+  border-bottom:1px solid transparent;
+  transition:background .45s var(--spring-soft),border-color .45s var(--spring-soft);
+}
+.filters.stuck{
+  background:rgba(8,9,11,.74);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom-color:var(--line);
+}
+.fx{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  height:34px;padding:0 14px;border-radius:var(--pill);
+  font-size:13.5px;color:var(--dim);cursor:pointer;font-family:inherit;
+  border:1px solid var(--line);background:rgba(255,255,255,.022);
+  transition:transform .45s var(--spring-pop),color .22s,border-color .22s,background .22s,box-shadow .3s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:hover{color:var(--txt);border-color:var(--line-2)}
+.chip:active{transform:scale(.94)}
+.chip[aria-pressed="true"]{
+  color:#fff;border-color:rgba(10,132,255,.55);
+  background:linear-gradient(180deg,rgba(10,132,255,.3),rgba(10,132,255,.16));
+  box-shadow:0 8px 22px -12px rgba(10,132,255,.8);
+}
+.chip .c{font-family:var(--mono);font-size:11.5px;color:var(--dim2);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"] .c{color:rgba(255,255,255,.7)}
+.count{margin-left:auto;font-size:12.5px;color:var(--dim2);font-variant-numeric:tabular-nums}
+
+/* ---------- 散点 ---------- */
+.chart-card{
+  margin-top:34px;border:1px solid var(--line);border-radius:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  padding:26px 26px 16px;
+  box-shadow:0 30px 70px -50px rgba(0,0,0,.95);
+}
+.chart-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.chart-head h2{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.chart-head p{font-size:12.5px;color:var(--dim2);margin-top:5px}
+.legend{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim2)}
+.legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.scroll-x{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.16) transparent;
+  -webkit-mask-image:linear-gradient(90deg,#000 92%,rgba(0,0,0,.25));
+  mask-image:linear-gradient(90deg,#000 92%,rgba(0,0,0,.25))}
+.scroll-x::-webkit-scrollbar{height:5px}
+.scroll-x::-webkit-scrollbar-track{background:transparent}
+.scroll-x::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}
+.swipe{display:none;font-size:11.5px;color:var(--dim2);margin-top:8px}
+.plot{position:relative;height:320px;min-width:620px;margin:20px 0 0;padding:0 8px 26px 54px}
+.plot .grid{position:absolute;left:54px;right:8px;top:0;bottom:26px;pointer-events:none}
+.plot .grid .dot{pointer-events:auto}
+.plot .gl{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.plot .gl span{
+  position:absolute;left:-54px;top:-9px;width:46px;text-align:right;
+  font-family:var(--mono);font-size:10.5px;color:var(--dim2);
+}
+.plot .xaxis{position:absolute;left:54px;right:8px;bottom:0;height:26px;pointer-events:none}
+.plot .xaxis span{
+  position:absolute;bottom:0;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10.5px;color:var(--dim2);
+}
+.dot{
+  position:absolute;pointer-events:auto;border:none;padding:0;cursor:pointer;border-radius:50%;
+  transform:translate(-50%,50%) scale(1);
+  transition:transform .45s var(--spring-pop),box-shadow .3s;
+  -webkit-tap-highlight-color:transparent;
+}
+.dot::after{content:"";position:absolute;inset:-9px;border-radius:50%}
+.dot:hover,.dot:focus-visible{transform:translate(-50%,50%) scale(1.34);z-index:5;outline:none}
+.dot:active{transform:translate(-50%,50%) scale(1.12)}
+.dot.sel{box-shadow:0 0 0 2px rgba(255,255,255,.92),0 0 0 7px rgba(10,132,255,.26)!important}
+.tip{
+  position:fixed;z-index:80;left:0;top:0;pointer-events:none;opacity:0;
+  transform:translate(-50%,-118%) scale(.96);
+  transition:opacity .16s,transform .3s var(--spring-soft);
+  background:rgba(20,22,27,.94);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);
+  backdrop-filter:blur(16px) saturate(180%);
+  border:1px solid var(--line-2);border-radius:12px;padding:9px 12px;
+  box-shadow:0 20px 50px -20px rgba(0,0,0,.95);white-space:nowrap;
+}
+.tip.on{opacity:1;transform:translate(-50%,-128%) scale(1)}
+.tip b{display:block;font-size:13px;font-weight:600}
+.tip span{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.chart-note{font-size:11.5px;color:var(--dim2);margin-top:8px;line-height:1.7}
+
+/* ---------- 事件卡 ---------- */
+.sect{margin-top:96px}
+.sect h2{font-size:clamp(20px,2.5vw,26px);font-weight:650;letter-spacing:-.7px;line-height:1.25}
+.sect .sub{color:var(--dim);font-size:14.5px;line-height:1.78;max-width:640px;margin-top:12px}
+.list{margin-top:26px;display:flex;flex-direction:column;gap:10px}
+.inc{
+  border:1px solid var(--line);border-radius:20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.014));
+  overflow:hidden;scroll-margin-top:130px;
+  transition:border-color .3s,background .3s;
+}
+.inc:hover{border-color:var(--line-2);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+.inc.open{border-color:rgba(10,132,255,.34)}
+.inc-head{
+  display:grid;grid-template-columns:74px minmax(0,1fr) auto 26px;
+  align-items:center;gap:18px;padding:20px 22px;
+  cursor:pointer;background:none;border:none;width:100%;text-align:left;color:inherit;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .5s var(--spring);
+}
+.inc-head:active{transform:scale(.994)}
+.yr{font-family:var(--mono);font-size:12px;color:var(--dim2);line-height:1.35;font-variant-numeric:tabular-nums}
+.yr b{display:block;font-size:15px;color:var(--dim);font-weight:500}
+.nm h3{font-size:17.5px;font-weight:600;letter-spacing:-.25px;line-height:1.3}
+.nm p{font-size:12.5px;color:var(--dim2);margin-top:4px;line-height:1.55}
+.loss{
+  font-family:var(--mono);font-size:19px;font-weight:600;letter-spacing:-.7px;
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.loss.c{color:var(--crit)} .loss.h{color:var(--high)} .loss.m{color:var(--med)} .loss.d{color:var(--dim)}
+.chev{
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  color:var(--dim2);font-size:10px;
+  transition:transform .45s var(--spring),color .3s,background .3s;
+}
+.inc.open .chev{transform:rotate(180deg);color:var(--txt);background:rgba(255,255,255,.07)}
+.inc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .46s var(--spring)}
+.inc.open .inc-body{grid-template-rows:1fr}
+.inc-in{overflow:hidden;min-height:0;opacity:0;transition:opacity .28s ease}
+.inc.open .inc-in{opacity:1;transition:opacity .38s ease .08s}
+.inc-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
+  background:var(--line);border-top:1px solid var(--line);
+}
+.ic{background:rgba(10,12,16,.62);padding:18px 22px}
+.ic .k{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim2);
+}
+.ic .v{font-size:13.5px;line-height:1.72;color:#c3c9d4;margin-top:7px}
+.ic .v b{color:var(--txt);font-weight:600}
+.ic.warn{background:rgba(255,69,58,.05)}
+.ic.warn .v b{color:#ff8078}
+
+/* ---------- 不对称 ---------- */
+.asym{
+  margin-top:34px;border:1px solid var(--line);border-radius:22px;padding:26px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
+}
+.arow{display:grid;grid-template-columns:110px minmax(0,1fr) 104px;gap:16px;align-items:center;padding:12px 0}
+.arow+.arow{border-top:1px solid rgba(255,255,255,.05)}
+.arow .k{font-size:13.5px;color:var(--dim)}
+.arow .bar{height:8px;border-radius:var(--pill);background:rgba(255,255,255,.06);overflow:hidden}
+.arow .bar i{display:block;height:100%;border-radius:var(--pill);transform-origin:left}
+.arow .v{font-family:var(--mono);font-size:12.5px;text-align:right;color:var(--dim);white-space:nowrap}
+.arow .v.hot{color:var(--crit)}
+.asym .foot{
+  margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
+  font-size:13.5px;line-height:1.8;color:var(--dim);
+}
+.asym .foot b{color:var(--txt);font-weight:600}
+
+/* ---------- 映射 ---------- */
+.map{margin-top:26px;display:grid;gap:10px}
+.mrow{
+  display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));
+}
+.mrow>div{padding:18px 20px}
+.mrow .l{border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.mrow .l b{font-size:14.5px;font-weight:600;line-height:1.4}
+.mrow .l span{font-size:11.5px;color:var(--dim2);margin-top:5px;font-family:var(--mono);letter-spacing:.3px}
+.mrow .r{font-size:13.5px;line-height:1.78;color:#c3c9d4}
+.mrow .r b{color:var(--accent-2);font-weight:600}
+
+/* ---------- 结尾 ---------- */
+.quote{
+  margin-top:64px;padding:32px 34px;border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,69,58,.1),rgba(255,69,58,.028));
+  border:1px solid rgba(255,69,58,.22);
+}
+.quote p{font-size:19px;line-height:1.75;letter-spacing:-.2px;color:#f0f2f6}
+.quote p b{color:#ff8b85;font-weight:600}
+.cta{
+  margin-top:26px;border:1px solid var(--line);border-radius:22px;padding:28px 30px;
+  display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+  background:linear-gradient(180deg,rgba(10,132,255,.09),rgba(255,255,255,.012));
+}
+.cta .t b{display:block;font-size:17px;font-weight:600;letter-spacing:-.3px}
+.cta .t span{display:block;color:var(--dim);font-size:13.5px;margin-top:6px;max-width:520px;line-height:1.72}
+.cta .go{
+  margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+  height:46px;padding:0 26px;border-radius:var(--pill);
+  background:var(--accent);color:#fff;text-decoration:none;font-size:14.5px;font-weight:600;
+  box-shadow:0 12px 30px -14px rgba(10,132,255,.9);
+  transition:transform .45s var(--spring-pop),background .2s,box-shadow .3s;
+}
+.cta .go:hover{background:#2b93ff;box-shadow:0 16px 36px -14px rgba(10,132,255,1)}
+.cta .go:active{transform:scale(.96)}
+footer{
+  margin-top:72px;padding-top:22px;border-top:1px solid var(--line);
+  font-size:11.5px;line-height:1.95;color:var(--dim2);
+}
+footer a{color:var(--dim);text-decoration:none;border-bottom:1px dotted var(--line)}
+footer a:hover{color:var(--accent-2);border-bottom-color:transparent}
+
+/* ---------- 入场 ---------- */
+/* 初始隐藏只挂在 html.js 上：脚本没跑起来时内容照常可见 */
+.js .rv{opacity:0;transform:translateY(14px)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .6s var(--spring-soft),transform .7s var(--spring-soft)}
+
+/* ---------- 响应式 ---------- */
+@media(max-width:820px){
+  .inc-grid{grid-template-columns:1fr}
+  .ic+.ic{border-top:1px solid var(--line)}
+  .mrow{grid-template-columns:1fr}
+  .mrow .l{border-right:none;border-bottom:1px solid var(--line)}
+}
+@media(max-width:720px){
+  body{padding:0 16px 96px;font-size:15px;line-height:1.78}
+  .nav{margin:0 -16px;padding:0 16px}
+  .nav-in{height:54px}
+  .brand span{display:none}
+  .hero{padding:46px 0 0}
+  h1{font-size:30px;letter-spacing:-.5px;line-height:1.18}
+  .lede{font-size:15.5px;margin-top:20px;line-height:1.78}
+  .figures{grid-template-columns:1fr;margin-top:36px;border-radius:18px}
+  .fig{padding:18px 20px;display:flex;align-items:baseline;gap:14px}
+  .fig .n{font-size:23px;flex:0 0 auto}
+  .fig .l{margin-top:0;font-size:12px;line-height:1.5}
+  .filters{margin:0 -16px;padding:12px 16px;top:54px}
+  .count{display:none}
+  .chart-card{padding:20px 18px 14px;border-radius:18px}
+  .plot{height:268px;min-width:540px}
+  .swipe{display:block}
+  .legend{margin-left:0;margin-top:10px}
+  .sect{margin-top:64px}
+  .inc-head{grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:16px 18px}
+  .yr{grid-column:1;grid-row:1;display:flex;align-items:baseline;gap:6px}
+  .yr b{font-size:12px;color:var(--dim2)}
+  .nm{grid-column:1/-1;grid-row:2}
+  .nm h3{font-size:16.5px}
+  .loss{grid-column:2;grid-row:1;font-size:17px}
+  .chev{display:none}
+  .ic{padding:16px 18px}
+  .asym{padding:20px 18px;border-radius:18px}
+  .arow{grid-template-columns:1fr auto;gap:7px 12px;padding:14px 0}
+  .arow .k{grid-column:1;grid-row:1}
+  .arow .v{grid-column:2;grid-row:1}
+  .arow .bar{grid-column:1/-1;grid-row:2}
+  .quote{padding:24px 20px;border-radius:18px}
+  .quote p{font-size:16.5px}
+  .cta{padding:22px 20px;border-radius:18px;gap:18px}
+  .cta .go{margin-left:0;width:100%;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+}
+
+
+
+
+
+/*UI-POLISH-START*/
+/* ============================================================
+   ApproveGuard · 全站视觉系统（唯一来源）
+   ------------------------------------------------------------
+   视觉调性：深色、冷静、精确。像安全仪表盘，不像营销页。
+   层级靠「材质 + 留白」区分，不靠堆线框。
+
+   1. 设计令牌：色板 / 字体 / 间距 / 圆角 / 尺寸 / 材质 / 动效
+   2. 基础层（全部用 :where 降优先级，只兜底，不抢页面自己的规则）
+   3. 组件层：按钮 / 输入 / 胶囊 / 徽章 / 卡片 / 引用 / 页脚
+   4. 页型节奏：scan（工具）/ land（落地页）/ report（长文）/ incidents（档案）
+   5. 响应式：≥1024 / ≤900 / ≤720 / ≤390
+   6. 无障碍：减弱动效 / 提高对比 / 键盘焦点
+
+   注入方式：node tools/inject-ui.js
+   直接改 HTML 里的样式会被下一次注入覆盖 —— 改这里。
+   ============================================================ */
+
+/* ---------- 1. 设计令牌 ---------- */
+:root{
+  /* 1.1 色板：背景三阶（越靠上越亮，模拟实体层叠）
+     注意：--surface-1 要明显亮于 --bg，否则卡片在深色底上会「消失」。
+     工具页原来的 #111318 层级是对的，统一时保留了它，只把底色压深。 */
+  --bg:#08090b;              /* 页面底色 */
+  --surface-1:#101319;       /* 卡片 / 面板（必须有可见的层级差） */
+  --surface-2:#161a21;       /* 悬停 / 嵌套层 */
+  --bg-2:#0c0e12;            /* 下沉分区（档案页沿用） */
+  --panel:var(--surface-1);  /* 旧名兼容（工具页在用） */
+  --panel2:var(--surface-2); /* 旧名兼容（工具页在用） */
+
+  /* 1.2 线：半透明发丝线，随背景明暗自适应 */
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.15);
+  --line-strong:var(--line-2);
+
+  /* 1.3 文字三阶：正文 / 次要 / 极弱 */
+  --txt:#f2f4f8;
+  --dim:#9aa1b1;
+  --dim2:#6b7280;
+
+  /* 1.4 语义色：风险等级（Apple 系统色，深浅两套都取 dark 档） */
+  --crit:#ff453a;            /* 高危 / 恶意 */
+  --high:#ff9f0a;            /* 偏高 */
+  --med:#ffd60a;             /* 中等 */
+  --low:#30d158;             /* 安全 */
+
+  /* 1.5 品牌色 */
+  --accent:#0a84ff;
+  --accent-2:#64a8ff;
+  --accent-dim:rgba(10,132,255,.14);
+
+  /* 1.6 字体：中英混排一套栈，不按页面切换 */
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+
+  /* 1.7 字号阶：只允许用这套，禁止一次性数值 */
+  --fs-2xs:11px;    /* 角标、单位、超小注释 */
+  --fs-xs:12px;     /* 说明文字、页脚 */
+  --fs-sm:13px;     /* 次要信息、徽章、按钮 */
+  --fs-base:14.5px; /* 正文基准（工具） */
+  --fs-md:16px;     /* 小标题、强调数值 */
+  --fs-lg:18px;     /* 卡片标题 */
+  --fs-xl:22px;     /* 区块标题 */
+  --fs-2xl:26px;    /* 大数值 */
+  --fs-3xl:34px;    /* 首屏标题 */
+  --fs-4xl:46px;    /* 报告卡数字 */
+  --fs-5xl:60px;    /* 档案页大标题 */
+
+  /* 1.8 行高：按用途分档，不随手写 */
+  --lh-solid:1.05;  /* 超大数字 */
+  --lh-num:1.15;    /* 数字区 */
+  --lh-tight:1.32;  /* 标题 */
+  --lh-snug:1.5;    /* 列表项 */
+  --lh-normal:1.62; /* 界面文本 */
+  --lh-read:1.78;   /* 段落 */
+  --lh-relaxed:1.85;/* 长文阅读 */
+
+  /* 1.9 字重 */
+  --fw-body:400;
+  --fw-mid:500;
+  --fw-bold:600;
+
+  /* 1.10 字距：字号越大越收紧（光学字号） */
+  --ls-tight:-1.2px;  /* 60px 级 */
+  --ls-snug:-.6px;    /* 34px 级 */
+  --ls-normal:-.2px;  /* 18–22px */
+  --ls-wide:.6px;     /* 小写标签 */
+  --ls-caps:1.4px;    /* 全大写角标 */
+
+  /* 1.11 间距阶（4 的倍数） */
+  --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px; --s-9:80px;
+
+  /* 1.12 圆角阶 */
+  --r-xs:6px;    /* 徽章 */
+  --r-sm:8px;    /* 按钮、输入框 */
+  --r-md:12px;   /* 列表项、小卡片 */
+  --r-lg:16px;   /* 大面板 */
+  --r-xl:20px;   /* 首屏卡片 */
+  --r-pill:999px;
+
+  /* 1.13 控件尺寸（全站同一基线，肉眼对齐） */
+  --h-ctl:44px;  /* 主控件：输入框、主按钮 */
+  --h-btn:38px;  /* 次按钮 */
+  --h-pill:32px; /* 胶囊、徽章容器 */
+  --h-badge:22px;/* 行内徽章 */
+
+  /* 1.14 材质与深度 */
+  --glass:saturate(180%) blur(20px);
+  --shadow-1:0 1px 2px rgba(0,0,0,.28);
+  --shadow-2:0 8px 28px -12px rgba(0,0,0,.7);
+  --shadow-pop:0 24px 60px -24px rgba(0,0,0,.85);
+
+  /* 1.15 动效：Apple 弹簧曲线的 CSS 映射
+     .32,.72,0,1  ≈ 阻尼 0.8 / 响应 0.3s（抽屉、弹层）
+     .22,1,.36,1  ≈ 阻尼 1.0 / 响应 0.4s（普通位移，临界阻尼不过冲）
+     .34,1.36,.64,1 → 仅用于按压回弹，等同轻微过冲 */
+  --spring:cubic-bezier(.32,.72,0,1);
+  --spring-soft:cubic-bezier(.22,1,.36,1);
+  --spring-pop:cubic-bezier(.34,1.36,.64,1);
+  --dur-fast:.18s;
+  --dur-mid:.32s;
+  --dur-slow:.6s;
+  --pill:var(--r-pill); /* 旧名兼容 */
+}
+
+/* ---------- 2. 基础层（:where 包裹 → 优先级为 0，页面自己的规则永远赢） ---------- */
+:where(html){-webkit-text-size-adjust:100%}
+:where(html,body){max-width:100%}
+:where(body){
+  font-family:var(--font);
+  font-weight:var(--fw-body);
+  letter-spacing:0;
+  color:var(--txt);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+:where(h1,h2,h3,h4){font-weight:var(--fw-bold);line-height:var(--lh-tight);letter-spacing:var(--ls-normal)}
+:where(b,strong){font-weight:var(--fw-bold)}
+:where(code,kbd,samp){font-family:var(--mono)}
+:where(p,li,td){text-wrap:pretty}
+:where(img,svg){max-width:100%}
+
+/* 数字统一等宽：切换数据时不跳动 */
+.rp-num,.stat .n,.num .n,.case .big,.asym .v,td.amt,td.gap,.loss,.fig .n,
+.row .to i,.qmi span,.card-box{font-variant-numeric:tabular-nums}
+
+/* 键盘焦点：统一可见性（:where 内避免污染页面自定义） */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:var(--r-sm);
+}
+:where(a){color:inherit}
+:where(::selection){background:rgba(10,132,255,.32)}
+
+/* 细滚动条：与卡片圆角、发丝线同一套语言 */
+:where(*)::-webkit-scrollbar{width:10px;height:10px}
+:where(*)::-webkit-scrollbar-track{background:transparent}
+:where(*)::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:var(--r-pill);
+  border:3px solid transparent;background-clip:content-box}
+:where(*)::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);
+  border:3px solid transparent;background-clip:content-box}
+
+/* ---------- 3. 组件层（跨页共用，页型内部可再细化） ---------- */
+/* 3.1 按钮：三种层级，同一高度基线 */
+.btn-main,.btn,.btn-ghost,.go,.revoke,.fbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-ctl);padding:0 22px;border-radius:var(--r-sm);
+  font-family:inherit;font-size:var(--fs-base);font-weight:var(--fw-mid);
+  border:1px solid transparent;cursor:pointer;text-decoration:none;
+  white-space:nowrap;
+  transition:background var(--dur-fast) var(--spring-soft),
+             border-color var(--dur-fast) var(--spring-soft),
+             color var(--dur-fast) var(--spring-soft),
+             transform var(--dur-fast) var(--spring-pop);
+}
+/* 按压即时反馈：不等抬手 */
+.btn-main:active,.btn:active,.btn-ghost:active,.go:active,
+.revoke:active,.fbtn:active,[role="button"]:active{transform:scale(.96)}
+
+/* 3.2 输入框 */
+input[type=text],input[type=search],textarea{
+  font-family:inherit;font-size:var(--fs-base);
+  height:var(--h-ctl);padding:0 15px;border-radius:var(--r-sm);
+  background:rgba(255,255,255,.03);border:1px solid var(--line);
+  color:var(--txt);outline:none;
+  transition:border-color var(--dur-fast),background var(--dur-fast),box-shadow var(--dur-fast);
+}
+input[type=text]:focus,input[type=search]:focus,textarea:focus{
+  border-color:rgba(10,132,255,.55);
+  background:rgba(255,255,255,.05);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+input::placeholder,textarea::placeholder{color:var(--dim2)}
+
+/* 3.3 胶囊 / 徽章：定高，跨行成列 */
+.chip,.pill,.lang,.zh,.back{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-pill);padding:0 13px;border-radius:var(--r-sm);
+  font-size:var(--fs-xs);line-height:1;text-decoration:none;
+  border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--dim);
+  transition:color var(--dur-fast),border-color var(--dur-fast),
+             background var(--dur-fast),transform var(--dur-fast) var(--spring-pop);
+}
+.chip:hover,.pill:hover,.lang:hover,.zh:hover,.back:hover{
+  color:var(--txt);border-color:var(--line-2);background:rgba(255,255,255,.05);
+}
+.chip:active,.pill:active,.lang:active,.zh:active,.back:active{transform:scale(.955)}
+
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-badge);padding:0 9px;border-radius:var(--r-xs);
+  font-size:var(--fs-2xs);line-height:1;white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+
+/* 3.4 卡片：底色 + 发丝线 + 极浅内高光（不用重阴影，深色下更干净） */
+.card,.case,.asym,.panel,.scanbox,.report,.chart-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+}
+
+/* 3.5 引用块：左侧色条 + 极浅底，与映射表同一视觉语言 */
+.quote{
+  border-left:2px solid var(--crit);
+  background:linear-gradient(90deg,rgba(255,69,58,.06),transparent 70%);
+}
+
+/* 3.6 页脚：统一弱化 + 分隔线 */
+:where(footer){
+  color:var(--dim2);font-size:var(--fs-xs);line-height:1.9;
+  border-top:1px solid var(--line);
+}
+
+/* ---------- 4A. 页型 scan：工具界面 ---------- */
+body[data-page="scan"]{
+  font-size:var(--fs-base);line-height:var(--lh-normal);
+  padding:0 20px 88px;
+}
+body[data-page="scan"] .wrap{max-width:940px}
+
+body[data-page="scan"] header{padding:26px 0 0}
+body[data-page="scan"] .brand{font-size:15px;line-height:1.2}
+body[data-page="scan"] .brand span{font-size:var(--fs-xs);letter-spacing:.3px}
+body[data-page="scan"] a.lang{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 12px;
+  font-size:var(--fs-xs);border-radius:var(--pill);line-height:1
+}
+
+/* 首屏：上留白大、下留白小，形成"标题区"边界 */
+body[data-page="scan"] .hero{padding:56px 0 26px}
+body[data-page="scan"] .hero h1{
+  font-size:clamp(23px,3.1vw,33px);line-height:1.26;letter-spacing:var(--ls-snug);max-width:780px;
+}
+body[data-page="scan"] .hero p{
+  margin-top:var(--s-3);font-size:var(--fs-base);line-height:var(--lh-read);
+  max-width:660px;color:var(--dim);
+}
+
+body[data-page="scan"] .scanbox{padding:20px;border-radius:var(--r-lg);margin-top:var(--s-3)}
+body[data-page="scan"] .field{gap:var(--s-3)}
+body[data-page="scan"] input[type=text]{font-size:var(--fs-base);padding:0 15px;height:var(--h-ctl)}
+body[data-page="scan"] .btn-main{padding:0 26px;height:var(--h-ctl);font-size:var(--fs-base)}
+body[data-page="scan"] .btn-ghost{padding:0 16px;height:var(--h-btn);font-size:var(--fs-sm);line-height:1}
+body[data-page="scan"] .chains{gap:var(--s-2);margin-top:0}
+body[data-page="scan"] .chainrow{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-4)}
+body[data-page="scan"] .chip{height:var(--h-pill);padding:0 12px;font-size:var(--fs-xs);line-height:1}
+body[data-page="scan"] .hint{font-size:var(--fs-xs);margin:0 0 0 auto;white-space:nowrap}
+body[data-page="scan"] .pickw{height:var(--h-btn);font-size:var(--fs-sm)}
+
+body[data-page="scan"] .report{padding:26px 26px 22px;border-radius:var(--r-lg);margin-top:var(--s-6)}
+body[data-page="scan"] .rp-label{font-size:var(--fs-xs);letter-spacing:var(--ls-wide)}
+body[data-page="scan"] .rp-num{font-size:var(--fs-4xl);line-height:var(--lh-num);letter-spacing:var(--ls-tight);margin:var(--s-1) 0 var(--s-1)}
+body[data-page="scan"] .rp-cap,body[data-page="scan"] .rp-note{font-size:var(--fs-xs);line-height:1.65}
+body[data-page="scan"] .rp-div{margin:var(--s-5) 0 var(--s-4)}
+body[data-page="scan"] .rp-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-5) var(--s-5)}
+body[data-page="scan"] .rp-cell .k{font-size:var(--fs-2xs);letter-spacing:.5px;margin-bottom:var(--s-1)}
+body[data-page="scan"] .rp-cell .v{font-size:var(--fs-md);line-height:var(--lh-snug)}
+body[data-page="scan"] .rp-cell .v.ell{font-size:var(--fs-sm)}
+body[data-page="scan"] .concl{margin-top:var(--s-5);padding:var(--s-4) 18px;border-radius:var(--r-md);
+  font-size:var(--fs-sm);line-height:1.8}
+body[data-page="scan"] .share-row{gap:var(--s-2);margin-top:var(--s-4)}
+body[data-page="scan"] .share-row button{height:var(--h-pill)}
+
+body[data-page="scan"] .ages{margin-top:var(--s-5)}
+body[data-page="scan"] .ages .lg{gap:var(--s-4);font-size:var(--fs-2xs)}
+body[data-page="scan"] .stats{gap:var(--s-3);margin-top:var(--s-4)}
+body[data-page="scan"] .stat{padding:var(--s-4);border-radius:var(--r-md)}
+body[data-page="scan"] .stat .n{font-size:var(--fs-xl);line-height:1.2}
+body[data-page="scan"] .stat .l{font-size:var(--fs-2xs);line-height:1.5;margin-top:var(--s-1)}
+
+body[data-page="scan"] .sec-title{margin:var(--s-7) 0 var(--s-3);font-size:var(--fs-md);gap:var(--s-2)}
+body[data-page="scan"] .sec-title span{font-size:var(--fs-xs)}
+body[data-page="scan"] .filters{gap:var(--s-2);margin-bottom:var(--s-3)}
+body[data-page="scan"] .fbtn{height:var(--h-pill);padding:0 13px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+body[data-page="scan"] .batch{gap:var(--s-2);margin:0 0 var(--s-3)}
+body[data-page="scan"] .batch button{height:var(--h-pill);padding:0 13px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+body[data-page="scan"] .batch .bl{font-size:var(--fs-xs)}
+
+body[data-page="scan"] .row{padding:var(--s-4);margin-bottom:var(--s-2);border-radius:var(--r-md);gap:var(--s-4);
+  transition:border-color var(--dur-fast),background var(--dur-fast)}
+body[data-page="scan"] .row .tk b{font-size:var(--fs-base)}
+body[data-page="scan"] .row .tk i,body[data-page="scan"] .row .to i{font-size:var(--fs-2xs)}
+body[data-page="scan"] .row .to b{font-size:var(--fs-sm)}
+body[data-page="scan"] .badge{font-size:var(--fs-2xs);height:var(--h-badge);display:inline-flex;align-items:center;
+  justify-content:center;padding:0 9px;border-radius:var(--r-xs)}
+/* 徽章定宽：同一列在不同行之间保持对齐 */
+body[data-page="scan"] .row .meta>.b-usd{min-width:72px}
+body[data-page="scan"] .row .meta>.b-age{min-width:48px}
+body[data-page="scan"] .row .meta>.b-crit,
+body[data-page="scan"] .row .meta>.b-high,
+body[data-page="scan"] .row .meta>.b-med,
+body[data-page="scan"] .row .meta>.b-ok,
+body[data-page="scan"] .row .meta>.b-trust{min-width:66px}
+body[data-page="scan"] .revoke{height:var(--h-pill);padding:0 14px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+
+body[data-page="scan"] .empty{padding:56px 20px;border-radius:var(--r-md)}
+body[data-page="scan"] footer{margin-top:var(--s-8);padding-top:var(--s-5);font-size:var(--fs-xs);line-height:1.9}
+body[data-page="scan"] footer a{text-decoration:none;border-bottom:1px dotted var(--line)}
+body[data-page="scan"] footer a:hover{color:var(--accent);border-bottom-color:transparent}
+
+body[data-page="scan"] .hist{font-size:var(--fs-xs);line-height:1.75;padding:10px 14px}
+
+@media(max-width:900px){
+  body[data-page="scan"] .rp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  body[data-page="scan"]{font-size:14px;padding:0 16px 72px}
+  body[data-page="scan"] .hero{padding:36px 0 22px}
+  body[data-page="scan"] .hero h1{font-size:22px;letter-spacing:var(--ls-normal);line-height:var(--lh-tight)}
+  body[data-page="scan"] .hero p{font-size:13.5px;line-height:1.8}
+  body[data-page="scan"] .scanbox{padding:16px;border-radius:var(--r-md)}
+  body[data-page="scan"] .report{padding:20px 18px 18px;margin-top:var(--s-5)}
+  body[data-page="scan"] .rp-num{font-size:36px;letter-spacing:var(--ls-snug)}
+  body[data-page="scan"] .rp-grid{grid-template-columns:1fr;gap:var(--s-3)}
+  body[data-page="scan"] .stats{gap:var(--s-2)}
+  body[data-page="scan"] .sec-title{margin-top:var(--s-6)}
+  body[data-page="scan"] .row{padding:var(--s-3);gap:var(--s-2) var(--s-3)}
+  /* 移动端重排为三段：币种 → 合约/地址 → 徽章 + 撤销，避免徽章把列挤扁 */
+  body[data-page="scan"] .row{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"tk tk" "to revoke" "meta meta";
+    align-items:center;
+  }
+  body[data-page="scan"] .row .tk{grid-area:tk;min-width:0;width:auto;
+    display:flex;align-items:baseline;gap:var(--s-2);flex-wrap:wrap}
+  body[data-page="scan"] .row .tk i{display:inline}
+  body[data-page="scan"] .row .to{grid-area:to;
+    display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+  body[data-page="scan"] .row .to b{font-size:var(--fs-xs)}
+  body[data-page="scan"] .row .meta{grid-area:meta;justify-self:stretch;gap:6px}
+  body[data-page="scan"] .row .revoke{grid-area:revoke;justify-self:end;white-space:nowrap;align-self:center}
+  body[data-page="scan"] footer{margin-top:var(--s-7)}
+}
+
+/* ---------- 4B. 页型 land：英文落地页 ---------- */
+body[data-page="land"]{
+  font-size:15px;line-height:var(--lh-normal);padding:0 20px 88px;
+}
+body[data-page="land"] .wrap{max-width:800px}
+body[data-page="land"] header{padding:26px 0 0}
+body[data-page="land"] a.zh{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 12px;
+  font-size:var(--fs-xs);border-radius:var(--pill);line-height:1
+}
+body[data-page="land"] .brand{font-size:15px}
+
+body[data-page="land"] .hero{padding:72px 0 8px}
+body[data-page="land"] .hero h1{
+  font-size:clamp(28px,4vw,40px);line-height:1.18;letter-spacing:var(--ls-tight);max-width:720px;
+}
+body[data-page="land"] .lede{margin-top:var(--s-5);font-size:16.5px;line-height:1.72;max-width:620px}
+body[data-page="land"] .cta{margin-top:var(--s-6);gap:var(--s-3)}
+body[data-page="land"] .btn{height:var(--h-ctl);display:inline-flex;align-items:center;padding:0 26px;
+  border-radius:var(--r-sm);font-size:15px}
+body[data-page="land"] .trust{margin-top:var(--s-4);font-size:var(--fs-xs)}
+
+body[data-page="land"] .section{margin-top:76px}
+body[data-page="land"] .section h2{font-size:var(--fs-xl);line-height:var(--lh-tight);letter-spacing:var(--ls-normal)}
+body[data-page="land"] .section .sub{margin-top:var(--s-2);font-size:14.5px;line-height:1.7}
+body[data-page="land"] .case{margin-top:var(--s-6);padding:26px;border-radius:var(--r-lg)}
+body[data-page="land"] .case .big{font-size:44px;line-height:var(--lh-solid);margin-bottom:var(--s-3)}
+body[data-page="land"] .case .cap{font-size:14.5px;line-height:1.7}
+body[data-page="land"] .case .rows{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .case .r{font-size:var(--fs-sm);line-height:1.6}
+body[data-page="land"] .steps{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .step{padding:18px 22px;border-radius:var(--r-md);gap:var(--s-4)}
+body[data-page="land"] .risk{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .rk{padding:var(--s-4) 20px;border-radius:var(--r-md)}
+body[data-page="land"] .faq{margin-top:var(--s-5)}
+body[data-page="land"] summary{padding:16px 20px;font-size:14.5px}
+body[data-page="land"] details{border-radius:var(--r-md)}
+body[data-page="land"] details p{padding:0 20px 18px;font-size:14px;line-height:1.75}
+body[data-page="land"] footer{margin-top:76px;padding-top:var(--s-5);font-size:var(--fs-xs);line-height:1.9}
+
+@media(max-width:720px){
+  body[data-page="land"]{padding:0 18px 72px}
+  body[data-page="land"] .hero{padding:48px 0 4px}
+  body[data-page="land"] .hero h1{font-size:28px;letter-spacing:var(--ls-snug)}
+  body[data-page="land"] .lede{font-size:15.5px;margin-top:var(--s-4)}
+  body[data-page="land"] .section{margin-top:56px}
+  body[data-page="land"] .cta{flex-direction:column;align-items:stretch;gap:var(--s-2)}
+  body[data-page="land"] .btn{justify-content:center}
+  body[data-page="land"] .case{padding:20px 18px}
+  body[data-page="land"] .case .big{font-size:34px}
+  body[data-page="land"] footer{margin-top:56px}
+}
+
+/* ---------- 4C. 页型 report：长文分析 ---------- */
+body[data-page="report"]{
+  font-size:15.5px;line-height:var(--lh-relaxed);padding:0 22px 104px;
+}
+body[data-page="report"] .wrap{max-width:880px}
+body[data-page="report"] header{padding:28px 0 0}
+body[data-page="report"] .back{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 14px;
+  font-size:var(--fs-xs);border-radius:var(--r-sm);line-height:1
+}
+
+body[data-page="report"] .hero{padding:56px 0 8px}
+body[data-page="report"] .eyebrow{font-size:var(--fs-2xs);letter-spacing:2px}
+body[data-page="report"] .hero h1{
+  font-size:clamp(26px,3.4vw,38px);line-height:1.28;letter-spacing:var(--ls-snug);margin-top:var(--s-3);
+}
+body[data-page="report"] .lede{margin-top:var(--s-4);font-size:16px;line-height:1.82;max-width:720px}
+
+body[data-page="report"] .nums{margin-top:var(--s-6);border-radius:var(--r-lg)}
+body[data-page="report"] .num{padding:22px 20px}
+body[data-page="report"] .num .n{font-size:var(--fs-2xl);line-height:1.2;letter-spacing:-.8px}
+body[data-page="report"] .num .l{font-size:var(--fs-xs);line-height:1.55;margin-top:var(--s-1)}
+
+body[data-page="report"] section{margin-top:72px}
+body[data-page="report"] h2{font-size:clamp(19px,2.4vw,23px);line-height:1.4;letter-spacing:-.35px;gap:10px}
+body[data-page="report"] h3{font-size:var(--fs-md);margin-top:36px;line-height:1.6}
+body[data-page="report"] p{margin-top:var(--s-3);line-height:1.9}
+body[data-page="report"] .sub{font-size:14px;margin-top:var(--s-2);line-height:1.7}
+
+body[data-page="report"] .eras{margin-top:var(--s-5)}
+body[data-page="report"] .era{padding:22px 0;gap:var(--s-5)}
+body[data-page="report"] .era .when{color:var(--dim2);font-size:var(--fs-2xs);letter-spacing:.5px}
+body[data-page="report"] .era .when b{color:var(--txt);font-size:17px;letter-spacing:-.3px}
+body[data-page="report"] .era .what b{font-size:15px;line-height:1.55}
+body[data-page="report"] .era .what span{font-size:14px;line-height:1.75;margin-top:var(--s-1);color:var(--dim)}
+
+body[data-page="report"] .tbl-wrap{margin-top:var(--s-5)}
+body[data-page="report"] table{font-size:14px}
+body[data-page="report"] th{padding:0 12px 10px;font-size:var(--fs-2xs);letter-spacing:1.1px}
+body[data-page="report"] td{padding:13px 12px;line-height:1.7}
+
+body[data-page="report"] .roles{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="report"] .role{padding:20px 22px;border-radius:0 var(--r-md) var(--r-md) 0}
+body[data-page="report"] .role p{font-size:14px;line-height:1.78;margin-top:var(--s-2)}
+body[data-page="report"] .role .ev{font-size:var(--fs-xs);line-height:1.7;margin-top:var(--s-3);padding-top:10px}
+
+body[data-page="report"] .asym{margin-top:var(--s-5);padding:26px;border-radius:var(--r-lg)}
+body[data-page="report"] .asym .row{padding:12px 0}
+body[data-page="report"] .asym .note{margin-top:var(--s-4);padding-top:var(--s-4);font-size:14px;line-height:1.8}
+
+body[data-page="report"] .layers{margin-top:var(--s-5);gap:var(--s-4)}
+body[data-page="report"] .layer{padding:24px;border-radius:var(--r-lg)}
+body[data-page="report"] .layer h4{margin-top:var(--s-4);font-size:var(--fs-2xs);letter-spacing:var(--ls-caps)}
+body[data-page="report"] .layer li{font-size:14px;line-height:1.8;margin-top:6px}
+
+body[data-page="report"] .map{margin-top:var(--s-5);border-radius:var(--r-md)}
+body[data-page="report"] .mrow>div{padding:16px 18px}
+body[data-page="report"] .mrow .left,body[data-page="report"] .mrow .right{font-size:14px;line-height:1.75}
+
+body[data-page="report"] .quote{margin-top:var(--s-7);padding:26px 28px;border-radius:0 var(--r-md) var(--r-md) 0}
+body[data-page="report"] .quote p{font-size:17px;line-height:1.8}
+
+body[data-page="report"] .cta{margin-top:var(--s-7);padding:28px;border-radius:var(--r-lg)}
+body[data-page="report"] .cta b{font-size:var(--fs-md);margin-bottom:var(--s-2)}
+body[data-page="report"] .cta span{font-size:14px;line-height:1.7}
+body[data-page="report"] .cta a{height:var(--h-ctl);display:inline-flex;align-items:center;margin-top:var(--s-4);
+  border-radius:var(--r-sm);font-size:14px}
+body[data-page="report"] footer{margin-top:var(--s-8);padding-top:var(--s-5);
+  font-size:var(--fs-xs);line-height:1.95}
+
+@media(max-width:720px){
+  body[data-page="report"]{font-size:14.8px;line-height:1.82;padding:0 18px 80px}
+  body[data-page="report"] .hero{padding:36px 0 4px}
+  body[data-page="report"] .hero h1{font-size:25px;letter-spacing:-.4px;line-height:var(--lh-tight)}
+  body[data-page="report"] .lede{font-size:15px;line-height:1.8}
+  body[data-page="report"] .nums{margin-top:var(--s-5)}
+  body[data-page="report"] .num{padding:16px 14px}
+  body[data-page="report"] .num .n{font-size:var(--fs-xl)}
+  body[data-page="report"] section{margin-top:56px}
+  body[data-page="report"] h2{font-size:20px}
+  body[data-page="report"] p{line-height:1.85}
+  body[data-page="report"] .era{padding:18px 0}
+  body[data-page="report"] .asym{padding:18px}
+  body[data-page="report"] .layer{padding:20px 18px}
+  body[data-page="report"] .quote{padding:20px 18px}
+  body[data-page="report"] .quote p{font-size:15.5px}
+  body[data-page="report"] .cta{padding:22px 18px}
+  body[data-page="report"] footer{margin-top:var(--s-7)}
+}
+
+/* ---------- 4D. 页型 incidents：攻击事件档案 ----------
+   这一页有自己的光学校式与玻璃层级，通用排版规则不得覆盖。
+   这里只做两件事：统一令牌（颜色/字体已由上面的 :root 接管）＋ 让顶栏多按钮不吃亏。 */
+body[data-page="incidents"]{background-color:var(--bg)}
+body[data-page="incidents"] .nav-in{gap:var(--s-2)}
+body[data-page="incidents"] .pill{height:var(--h-pill);font-size:var(--fs-xs)}
+body[data-page="incidents"] .brand span{letter-spacing:var(--ls-caps)}
+@media(max-width:720px){
+  /* 窄屏只留语言开关，返回按钮收成图标宽度，避免三个元素挤掉品牌名 */
+  body[data-page="incidents"] .nav-in{gap:6px}
+  body[data-page="incidents"] .pill{padding:0 10px;font-size:var(--fs-2xs)}
+}
+
+/* ---------- 4E. 品牌标记 ----------
+   替换掉原来「方框套方块」的 CSS 画法：那个标记没有任何含义，两个同心直角方框
+   在 24px 下也看不出结构。改成盾牌 + 对勾，尺寸统一 26px（原来 24/26 混用）。 */
+svg.logo{
+  width:26px;height:26px;flex:0 0 auto;display:block;
+  border:0;border-radius:0;background:none;overflow:visible;
+}
+/* 旧页面用伪元素画的内方块，换成 svg 后必须彻底关掉 */
+svg.logo::before,svg.logo::after{content:none!important;display:none!important}
+
+/* ---------- 4F. 语言切换：档案页顶栏唯一的跨语言入口 ----------
+   EN 两个字母太容易看成装饰，被当成「没有英文版」。这里给它实心色描边 +
+   图标 + 完整语种名，权重高于旁边的普通胶囊，但仍是次要动作，不抢主 CTA。 */
+a.lang-sw{
+  display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;
+  height:var(--h-pill);padding:0 12px 0 10px;border-radius:var(--pill);
+  font-size:var(--fs-xs);font-weight:500;letter-spacing:-.05px;
+  color:var(--accent);text-decoration:none;white-space:nowrap;
+  border:1px solid rgba(10,132,255,.45);                            /* 老浏览器兜底 */
+  border-color:color-mix(in srgb,var(--accent) 45%,transparent);
+  background:rgb(10 132 255 / .10);                                 /* 老浏览器兜底 */
+  background:color-mix(in srgb,var(--accent) 10%,transparent);
+  transition:transform .45s var(--spring-pop),color .2s,background .2s,border-color .2s;
+}
+a.lang-sw svg{width:13px;height:13px;flex:0 0 auto;opacity:.85;transition:opacity .2s}
+a.lang-sw:hover{color:#fff;border-color:transparent;background:var(--accent)}
+a.lang-sw:hover svg{opacity:1}
+a.lang-sw:active{transform:scale(.955)}
+a.lang-sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:720px){
+  /* 窄屏腾位置：品牌副标题让位给完整语种名，品牌主轴本身不动 */
+  body[data-page="incidents"] .brand span{display:none}
+  a.lang-sw{padding:0 10px 0 8px;gap:5px;font-size:var(--fs-2xs);min-height:32px}
+}
+
+/* ---------- 5. 小屏触摸友好 ---------- */
+@media(max-width:720px){
+  body[data-page] button,body[data-page] a.lang,body[data-page] a.zh,
+  body[data-page] a.back,body[data-page] a.pill{min-height:32px}
+}
+
+/* ---------- 6. 无障碍 ---------- */
+/* 减弱动效：只保留必要的状态切换，不做位移动画 */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;
+  }
+  .btn-main:active,.btn:active,.btn-ghost:active,.go:active,
+  .revoke:active,.fbtn:active,.chip:active,.pill:active{transform:none}
+}
+/* 提高对比度：线更实、弱化文字提亮 */
+@media(prefers-contrast:more){
+  :root{
+    --line:rgba(255,255,255,.22);
+    --line-2:rgba(255,255,255,.34);
+    --dim:#c3c9d4;
+    --dim2:#9aa1b1;
+  }
+}
+/* 浅色系统偏好下不做反转，仅提示浏览器控件用深色 */
+@media(prefers-color-scheme:light){
+  :root{color-scheme:dark}
+}
+
+/*UI-POLISH-END*/
+</style>
+</head>
+<body data-page="incidents">
+<div class="wrap">
+
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <svg class="logo" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><defs><linearGradient id="agMark" x1="3" y1="2" x2="23" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#0a84ff"/></linearGradient></defs><path d="M13 2.4 21.8 5.6v7.2c0 4.8-3.6 8.7-8.8 10.8-5.2-2.1-8.8-6-8.8-10.8V5.6Z" fill="url(#agMark)" fill-opacity=".12" stroke="url(#agMark)" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.6 13.2l2.9 2.9 5.9-6.1" fill="none" stroke="url(#agMark)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="brand">ApproveGuard<span>Past Attacks</span></div>
+    <div class="nav-sp"></div>
+    <a class="lang-sw" href="past-attacks-en.html" hreflang="en" aria-label="Read this page in English"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg><span>English</span></a>
+    <a class="pill" href="index.html">← 钱包检查</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="eyebrow">Past attacks · 2014—2026</div>
+  <h1>十二年里，<em>$77.1B</em> 是这样被拿走的</h1>
+  <p class="lede">十三起最大的加密攻击，摊在同一张图上：<b>谁丢了多少、多快被发现、以及时间到底在哪一步出了错</b>。看完你会发现，绝大多数不是代码写错了，而是一个权限活得比它该活的久。</p>
+
+  <div class="figures rv">
+    <div class="fig c"><div class="n">$77.1B</div><div class="l">DeFi 生态累计因攻击与诈骗损失<br>（REKT 数据库，2026-02）</div></div>
+    <div class="fig h"><div class="n">8.4%</div><div class="l">其中被追回的比例。<br>剩下 91.6% 在事发那一刻就定了结局</div></div>
+    <div class="fig a"><div class="n">20 min</div><div class="l">2026-10-30 币安 63.6 亿美元<br>被转出的耗时</div></div>
+  </div>
+</header>
+
+<div class="filters" id="filters">
+  <div class="fx">
+    <button class="chip" data-f="all" aria-pressed="true">全部 <span class="c">13</span></button>
+    <button class="chip" data-f="bridge" aria-pressed="false">跨链桥 <span class="c">5</span></button>
+    <button class="chip" data-f="cex" aria-pressed="false">交易所 <span class="c">5</span></button>
+    <button class="chip" data-f="defi" aria-pressed="false">DeFi <span class="c">2</span></button>
+    <button class="chip" data-f="supply" aria-pressed="false">供应链 <span class="c">1</span></button>
+    <span class="count" id="count">13 起事件</span>
+  </div>
+</div>
+
+<section class="chart-card rv">
+  <div class="chart-head">
+    <div>
+      <h2>损失规模 × 发生时间</h2>
+      <p>纵轴为对数刻度，每格 10 倍。点越大，损失越高。点一下跳到该事件。</p>
+    </div>
+    <div class="legend">
+      <span><i style="background:#ff453a"></i>跨链桥</span>
+      <span><i style="background:#ff9f0a"></i>交易所</span>
+      <span><i style="background:#0a84ff"></i>DeFi</span>
+      <span><i style="background:#30d158"></i>供应链</span>
+    </div>
+  </div>
+  <div class="scroll-x">
+    <div class="plot" id="plot">
+      <div class="grid" id="grid"></div>
+      <div class="xaxis" id="xaxis"></div>
+    </div>
+  </div>
+  <div class="swipe">← 左右滑动看完整时间轴 →</div>
+  <div class="chart-note">2022 年一年出现四起，全部是跨链桥。2026 年 10 月这一起，超过了此前任何一次。</div>
+</section>
+
+<section class="sect">
+  <h2>逐起事件</h2>
+  <p class="sub">每一条都拆成三块：怎么发生的、发现用了多久、以及时间上真正出问题的那一处。点开看细节。</p>
+  <div class="list" id="list">
+
+    <article class="inc rv" data-cat="cex" data-date="2014-02" data-loss="450000000" data-color="#ff9f0a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2014</b>02 月</div>
+        <div class="nm"><h3>Mt.Gox</h3><p>中心化托管 · 85 万枚 BTC</p></div>
+        <div class="loss h">$450M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">冷热钱包管理长期混乱，币在几年里被持续挪用，直到资不抵债。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>约 3 年。</b>2011 年起就在失血，2014 年 2 月才停摆。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">没有实时对账，<b>亏空靠资产负债表兜不住才被发现</b>。85 万枚里约 20 万后来在旧钱包找回，剩下 65 万赔付拖了十年。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="cex" data-date="2016-08" data-loss="72000000" data-color="#ff9f0a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2016</b>08 月</div>
+        <div class="nm"><h3>Bitfinex</h3><p>交易所热钱包 · 12 万枚 BTC</p></div>
+        <div class="loss m">$72M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">多签架构中 BitGo 一侧被绕过，热钱包提现限额过于宽松。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>当天。</b>异常提现触发了监控，但钱已出账。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">限额在<b>“够用”与“够安全”之间选了前者</b>，一次签名能搬走的量远超所需。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="cex" data-date="2018-01" data-loss="530000000" data-color="#ff9f0a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2018</b>01 月</div>
+        <div class="nm"><h3>Coincheck</h3><p>交易所 · 5.3 亿美元 NEM</p></div>
+        <div class="loss h">$530M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">NEM 放在联网热钱包里，且没有多签保护，私钥单点可被取走。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>数小时。</b>内部发现余额异常，但提现通道早已被清空。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">热钱包长期在线<b>没有任何“到期搬走”机制</b>，风险敞口 24 小时都在。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="bridge" data-date="2021-08" data-loss="612000000" data-color="#ff453a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2021</b>08 月</div>
+        <div class="nm"><h3>Poly Network</h3><p>跨链桥 · 授权路径缺二次校验</p></div>
+        <div class="loss c">$612M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">跨链消息的验证合约允许攻击者改写可信目标，把资金提到自己地址。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>数小时内。</b>金额巨大且地址可追，最终陆续归还。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">权限一旦被改，<b>没有冷静期</b>可以拦截；能追回靠的是攻击者愿意谈，不是机制。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="bridge" data-date="2022-02" data-loss="326000000" data-color="#ff453a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2022</b>02 月</div>
+        <div class="nm"><h3>Wormhole</h3><p>跨链桥 · 凭空铸出 12 万枚 wETH</p></div>
+        <div class="loss h">$326M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">签名验证可被伪造，攻击者绕过 guardian 校验，直接在目标链铸造资产。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>数小时。</b>Jump Crypto 随后补足缺口，避免协议破产。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">铸造与验证之间<b>没有延迟窗口</b>，资产一出现就能被卖掉。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="bridge" data-date="2022-03" data-loss="624000000" data-color="#ff453a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2022</b>03 月</div>
+        <div class="nm"><h3>Ronin Bridge</h3><p>跨链桥 · 173,600 ETH + 2,550 万 USDC</p></div>
+        <div class="loss c">$624M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">攻击者拿到 Sky Mavis 系统权限，凑够 5/9 签名，两笔交易提走资金。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>6 天。</b>直到一个用户想取 5,000 ETH 取不出来才暴露。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v"><b>2021 年 11 月开的白名单，12 月就该失效，2022 年 3 月还活着。</b>那是第五个签名。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="bridge" data-date="2022-08" data-loss="190000000" data-color="#ff453a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2022</b>08 月</div>
+        <div class="nm"><h3>Nomad</h3><p>跨链桥 · 数小时内 300+ 钱包</p></div>
+        <div class="loss m">$190M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">一次升级把信任根初始化为 0，任何人可提交未验证消息，把别人的存款提走。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>漏洞公开后几小时。</b>复制粘贴的人群比团队反应更快。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">升级上线<b>缺少“改完先验证状态”的环节</b>；一旦公开，几分钟就够被搬空。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="bridge" data-date="2022-10" data-loss="568000000" data-color="#ff453a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2022</b>10 月</div>
+        <div class="nm"><h3>BNB Bridge</h3><p>跨链桥 · 伪造证明提走资金</p></div>
+        <div class="loss h">$568M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">IAVL 证明验证被绕过，攻击者用伪造证明凭空生成跨链资产。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>数小时。</b>链被紧急暂停，避免了更大外溢。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">暂停是<b>事后动作</b>；在验证逻辑存在缺陷的那段时间里，任何人都能反复利用。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="defi" data-date="2023-03" data-loss="197000000" data-color="#0a84ff" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2023</b>03 月</div>
+        <div class="nm"><h3>Euler Finance</h3><p>DeFi · 缺一次健康检查</p></div>
+        <div class="loss m">$197M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">刚上线、还经过评审的 donateToReserves 路径缺少健康检查，可被用来制造坏账。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>21 天后全额归还。</b>链上身份可追，谈判窗口被抓住。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">能追回是<b>例外而非机制</b>：因为攻击者没有混币，也因为他愿意谈。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="defi" data-date="2023-07" data-loss="61000000" data-color="#0a84ff" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2023</b>07 月</div>
+        <div class="nm"><h3>Curve / Vyper</h3><p>DeFi · 编译器层面的重入锁失效</p></div>
+        <div class="loss m">$61M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">Vyper 编译器某个版本的重入锁失效，多个池同时暴露，被同一手法打穿。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>数天。</b>白帽与攻击者同时在场，资金去向分裂。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">编译器版本<b>没有强制复核机制</b>，同一个缺陷在几年里一直躺在链上。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="supply" data-date="2023-12" data-loss="600000" data-color="#30d158" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2023</b>12 月</div>
+        <div class="nm"><h3>Ledger ConnectKit</h3><p>供应链 · 恶意版本在线约 5 小时</p></div>
+        <div class="loss d">$0.6M</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">一个 npm 发布凭证被钓鱼，恶意版本被推给几十个 DApp 的钱包连接组件。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>约 5 小时。</b>实际资金流失窗口不到 2 小时。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">金额最小，但<b>攻击面最大</b>：一个凭证失守，所有人同时中招。SRI 与版本锁定能挡住这类。</div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="cex" data-date="2025-02" data-loss="1460000000" data-color="#ff9f0a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2025</b>02 月</div>
+        <div class="nm"><h3>Bybit</h3><p>交易所 · 约 401,000 ETH，签名界面被替换</p></div>
+        <div class="loss c">$1.46B</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">Safe 开发者工作站被入侵，前端 JS 被替换：签名者看到的是正常转账，实际签的是交出钱包控制权。</div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>潜伏 17 天</b>（2/4 入侵 → 2/18 部署恶意合约 → 2/19 换 JS → 2/21 签名）；清空后 2 分钟抹掉后门。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">私钥一枚没泄露、多签门槛一枚没被绕过。<b>整个 17 天里，防守方一次都没被打扰。</b></div></div>
+      </div></div></div>
+    </article>
+
+    <article class="inc rv" data-cat="cex" data-date="2026-10" data-loss="6360000000" data-color="#ff9f0a" tabindex="0">
+      <button class="inc-head" aria-expanded="false">
+        <div class="yr"><b>2026</b>10 月</div>
+        <div class="nm"><h3>币安 Binance</h3><p>交易所 · 10 条链，20 分钟内转完</p></div>
+        <div class="loss c">$6.36B</div>
+        <div class="chev">▼</div>
+      </button>
+      <div class="inc-body"><div class="inc-in"><div class="inc-grid">
+        <div class="ic"><div class="k">怎么发生的</div><div class="v">一名 DevOps 工程师的笔记本被入侵 → 服务容器 → 未授权提现。<b>未发现私钥泄露。</b></div></div>
+        <div class="ic"><div class="k">发现用了多久</div><div class="v"><b>分钟级。</b>TRM 追踪 63.6 亿、跨 10 条链，大部分在 20 分钟内完成。</div></div>
+        <div class="ic warn"><div class="k">时间上的失误</div><div class="v">冻回约 30 亿（Tether 15.7 亿 + Circle 8 亿 + Ripple 2 亿，≈47%），<b>靠的是发行方愿意配合，不是链上机制</b>。全行业平均追回 8.4%。</div></div>
+      </div></div></div>
+    </article>
+
+  </div>
+</section>
+
+<section class="sect">
+  <h2>时间在六个位置上，各放大一次风险</h2>
+  <p class="sub">时间不是背景，是一个独立起作用的变量。它在六个不同位置各放大一次风险。</p>
+
+  <div class="asym rv">
+    <div class="arow"><div class="k">签下授权</div><div class="bar"><i style="width:2%;background:#30d158"></i></div><div class="v">约 1 秒</div></div>
+    <div class="arow"><div class="k">授权生效</div><div class="bar"><i style="width:100%;background:#ff453a"></i></div><div class="v hot">永久，无到期</div></div>
+    <div class="arow"><div class="k">攻击者准备</div><div class="bar"><i style="width:26%;background:#ff9f0a"></i></div><div class="v">Bybit 17 天</div></div>
+    <div class="arow"><div class="k">执行完毕</div><div class="bar"><i style="width:4%;background:#ff9f0a"></i></div><div class="v">币安 20 分钟</div></div>
+    <div class="arow"><div class="k">发现问题</div><div class="bar"><i style="width:34%;background:#ff453a"></i></div><div class="v hot">Ronin 6 天</div></div>
+    <div class="arow"><div class="k">撤销它</div><div class="bar"><i style="width:22%;background:#9aa1b1"></i></div><div class="v">1 笔交易 + gas</div></div>
+    <div class="arow"><div class="k">追回资金</div><div class="bar"><i style="width:8.4%;background:#30d158"></i></div><div class="v">8.4%</div></div>
+    <div class="foot">这不是某个协议的 bug，而是 ERC-20 授权模型的设计选择：为了让 DApp 不必每次转账都让你签名，标准把「许可」和「使用」彻底解耦了。<b>签名的成本是瞬时的，风险的存续是永久的。</b></div>
+  </div>
+</section>
+
+<section class="sect">
+  <h2>这些失误里，你能改的是哪几个</h2>
+  <p class="sub">六个位置中三个在攻击者或机构手里，剩下三个都在你自己的钱包里 —— 而且都是同一种东西：你不知道自己现在处于什么状态。</p>
+
+  <div class="map">
+    <div class="mrow rv">
+      <div class="l"><b>Ronin：4 个月前的白名单没撤</b><span>权限存续超出预期</span></div>
+      <div class="r">检查给出每笔授权的年龄，把<b>「最老的一笔签于多久之前、签给了谁」</b>放在最显眼的位置。你不需要记得，链上记着。</div>
+    </div>
+    <div class="mrow rv">
+      <div class="l"><b>币安：20 分钟转完 63.6 亿</b><span>事后完全来不及</span></div>
+      <div class="r">检查只回答一个数字：<b>此刻有多少钱挂在别人手上</b>。不是四十行清单，是一个能让你立刻做决定的金额。</div>
+    </div>
+    <div class="mrow rv">
+      <div class="l"><b>Ronin：6 天后才被一个用户发现</b><span>发现依赖偶然</span></div>
+      <div class="r">检查把发现变成<b>主动的、十秒一次的动作</b>。同一地址重复扫描十分钟内走缓存，随时可查。</div>
+    </div>
+    <div class="mrow rv">
+      <div class="l"><b>Bybit：签名 1 秒，失去控制权</b><span>撤销成本高到没人做</span></div>
+      <div class="r">检查把撤销压到<b>一次点击</b>：单笔直接调 approve(spender, 0)，也可以按「全部高危 / 全部无限 / 两年以上」排队逐笔确认。</div>
+    </div>
+  </div>
+</section>
+
+<div class="quote rv">
+  <p>这十几年所有大案的共同点，不是攻击者多聪明，而是<b>某个权限活得太久了</b>。Ronin 的白名单多活了 4 个月，币安那台笔记本多活了不知道多久 —— 而你的某一次授权，可能已经活了三年。</p>
+</div>
+
+<div class="cta rv">
+  <div class="t">
+    <b>十秒钟，看一眼你的授权现在几岁了</b>
+    <span>扫描 5 条链的代币与 NFT 授权，只读，不连钱包，不碰私钥，地址不上传。</span>
+  </div>
+  <a class="go" href="index.html">开始检查 →</a>
+</div>
+
+<footer>
+  数据来源：Sky Mavis 官方复盘、SlowMist、Halborn、Chainalysis、TRM Labs、NCC Group、Ledger 安全博客、OWASP 智能合约安全手册案例、REKT 损失数据库、The Block 与中央社对 2026-10-30 币安事件的报道。<br>
+  金额均为事发时美元计价，不同机构口径存在差异。币安一案：交易所自估 63 亿、Glassnode 链上测算 53 亿、TRM Labs 追踪 63.6 亿，本文采用 TRM 口径。<br>
+  本文为安全分析，不构成投资建议，也不构成对任何平台安全性的担保。<br>
+  <a href="index.html">钱包授权检查（中文）</a> · <a href="app-en.html">Wallet check (English)</a>
+</footer>
+
+</div>
+<div class="tip" id="tip"><b></b><span></span></div>
+
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 顶栏与筛选条：滚动后才出现玻璃底 */
+  var nav = document.getElementById('nav');
+  var filters = document.getElementById('filters');
+  function onScroll(){
+    var on = scrollY > 4;
+    nav.classList.toggle('stuck', on);
+    filters.classList.toggle('stuck', on);
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  /* 散点图：数据全部读自卡片，避免两处维护 */
+  var cards = [].slice.call(document.querySelectorAll('.inc'));
+  var plot = document.getElementById('plot');
+  var area = document.getElementById('grid');
+  var grid = document.getElementById('grid');
+  var xaxis = document.getElementById('xaxis');
+  var tip = document.getElementById('tip');
+
+  var Y = [1e6, 1e7, 1e8, 1e9];
+  var TOPV = 1.2e10, BOTV = 3e5, X0 = 2013.6, X1 = 2027.1;
+  var lg = Math.log10;
+  function posY(v){ return (lg(v) - lg(BOTV)) / (lg(TOPV) - lg(BOTV)); }
+  function posX(d){
+    var p = d.split('-'), y = +p[0], m = +p[1] || 6;
+    return (y + (m - 0.5) / 12 - X0) / (X1 - X0);
+  }
+
+  Y.forEach(function(v){
+    var el = document.createElement('div');
+    el.className = 'gl';
+    el.style.bottom = (posY(v) * 100) + '%';
+    el.innerHTML = '<span>' + (v >= 1e9 ? (v / 1e9) + 'B' : (v / 1e6) + 'M') + '</span>';
+    grid.appendChild(el);
+  });
+  var step = innerWidth < 720 ? 4 : 2;
+  for (var y = 2014; y <= 2026; y += step){
+    var s = document.createElement('span');
+    s.textContent = y;
+    s.style.left = (((y + 0.5 - X0) / (X1 - X0)) * 100) + '%';
+    xaxis.appendChild(s);
+  }
+
+  cards.forEach(function(card){
+    var d = card.dataset.date, v = +card.dataset.loss, color = card.dataset.color;
+    var r = 5 + Math.min(11, Math.pow(v / 1e6, 0.28) * 1.5);
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.style.width = dot.style.height = (r * 2) + 'px';
+    dot.style.left = (posX(d) * 100) + '%';
+    dot.style.bottom = (posY(v) * 100) + '%';
+    dot.style.background = color;
+    dot.style.boxShadow = '0 0 0 1px rgba(0,0,0,.3),0 0 18px -2px ' + color + '99';
+    dot.dataset.target = d;
+    dot.setAttribute('aria-label', card.querySelector('h3').textContent + '，损失 ' + card.querySelector('.loss').textContent);
+    area.appendChild(dot);
+
+    dot.addEventListener('pointerenter', function(){ showTip(dot, card); });
+    dot.addEventListener('pointerleave', hideTip);
+    dot.addEventListener('focus', function(){ showTip(dot, card); });
+    dot.addEventListener('blur', hideTip);
+    dot.addEventListener('click', function(){ jumpTo(card, dot); });
+  });
+
+  function showTip(dot, card){
+    var r = dot.getBoundingClientRect();
+    tip.querySelector('b').textContent = card.querySelector('h3').textContent;
+    tip.querySelector('span').textContent = card.dataset.date + ' · ' + card.querySelector('.loss').textContent;
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = r.top + 'px';
+    tip.classList.add('on');
+  }
+  function hideTip(){ tip.classList.remove('on'); }
+
+  function jumpTo(card, dot){
+    document.querySelectorAll('.dot.sel').forEach(function(x){ x.classList.remove('sel'); });
+    if (dot) dot.classList.add('sel');
+    open(card, true);
+    card.scrollIntoView({block:'center', behavior: reduce ? 'auto' : 'smooth'});
+  }
+
+  function open(card, force){
+    var on = force === true ? true : !card.classList.contains('open');
+    card.classList.toggle('open', on);
+    card.querySelector('.inc-head').setAttribute('aria-expanded', on ? 'true' : 'false');
+  }
+  cards.forEach(function(card){
+    card.querySelector('.inc-head').addEventListener('click', function(){ open(card); });
+    card.addEventListener('keydown', function(e){
+      if ((e.key === 'Enter' || e.key === ' ') && e.target === card){ e.preventDefault(); open(card); }
+    });
+  });
+
+  /* 分类筛选：同时过滤列表与散点 */
+  var chips = [].slice.call(document.querySelectorAll('.chip'));
+  var countEl = document.getElementById('count');
+  var dots = [].slice.call(document.querySelectorAll('.dot'));
+  chips.forEach(function(ch){
+    ch.addEventListener('click', function(){
+      chips.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      ch.setAttribute('aria-pressed','true');
+      var f = ch.dataset.f, shown = 0;
+      cards.forEach(function(c){
+        var hit = (f === 'all' || c.dataset.cat === f);
+        c.style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      });
+      dots.forEach(function(dt){
+        var c = cards.filter(function(c){ return c.dataset.date === dt.dataset.target; })[0];
+        dt.style.display = (f === 'all' || (c && c.dataset.cat === f)) ? '' : 'none';
+      });
+      countEl.textContent = shown + ' 起事件';
+    });
+  });
+
+  /* 入场：错峰淡入，尊重减弱动效 */
+  var targets = [].slice.call(document.querySelectorAll('.rv'));
+  if (reduce || !('IntersectionObserver' in window)){
+    targets.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en, i){
+        if (!en.isIntersecting) return;
+        en.target.style.transitionDelay = (Math.min(i, 5) * 50) + 'ms';
+        en.target.classList.add('in');
+        io.unobserve(en.target);
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:.08});
+    targets.forEach(function(el){ io.observe(el); });
+  }
+
+  /* 兜底：观察器完全不工作时（一帧都没触发过）才整体放出，不影响正常错峰 */
+  setTimeout(function(){
+    if (document.querySelector('.rv.in')) return;
+    targets.forEach(function(el){ el.classList.add('in'); });
+  }, 1200);
+
+  addEventListener('resize', function(){
+    dots.forEach(function(dt){
+      var c = cards.filter(function(x){ return x.dataset.date === dt.dataset.target; })[0];
+      if (c) dt.style.left = (posX(c.dataset.date) * 100) + '%';
+    });
+  });
+})();
+</script>
+<script>
+/* 托管平台对每条路径都要 sharecode，站内跳转必须把它带上 */
+document.querySelectorAll('a[href]').forEach(function(a){
+  var raw = a.getAttribute('href');
+  if(!raw || raw.indexOf('://') > -1 || raw.charAt(0) === '#' || raw.indexOf('?') > -1) return;
+  var m = raw.match(/^([^#]*\.html)(#.*)?$/);
+  if(!m) return;
+  a.setAttribute('href', m[1] + location.search + (m[2] || ''));
+});
+</script>
+</body>
+</html>

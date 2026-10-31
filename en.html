@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ApproveGuard — How much of your money is one signature away from being taken?</title>
+<meta name="description" content="A 30-second wallet check. We scan every token and NFT approval across 5 chains and put a dollar figure on what is currently exposed.">
+<meta property="og:title" content="ApproveGuard — Your wallet is still holding a key for a stranger">
+<meta property="og:description" content="Scan every approval across 5 chains. Get one number: how much can be taken from you right now.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://approveguard.app.workbuddy.host/og.png?sharecode=6MNQ32DLT2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How much of your money is one signature away?">
+<meta name="twitter:description" content="Scan every token and NFT approval across 5 chains in 10 seconds. Free, no login, no private keys.">
+<meta name="twitter:image" content="https://approveguard.app.workbuddy.host/og.png?sharecode=6MNQ32DLT2">
+<style>
+:root{
+  --bg:#0a0b0d; --panel:#111318; --panel2:#171a21; --line:#232733;
+  --txt:#e6e8ee; --dim:#8a90a0; --dim2:#5d6373;
+  --crit:#ff4d4f; --high:#ff9f43; --med:#ffd166; --low:#4ade80; --accent:#4a9eff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;padding:0 20px 80px}
+.wrap{max-width:780px;margin:0 auto}
+
+header{padding:28px 0 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.head-left{display:flex;align-items:center;gap:10px}
+.logo{width:26px;height:26px;border:1.5px solid var(--accent);border-radius:7px;position:relative;flex:0 0 auto}
+.head-right{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.logo::after{content:"";position:absolute;inset:6px;background:var(--accent);border-radius:2px;opacity:.85}
+.brand{font-size:15px;font-weight:600;letter-spacing:.2px}
+.brand span{color:var(--dim2);font-weight:400;margin-left:8px;font-size:12.5px;letter-spacing:.4px}
+a.zh{color:var(--dim2);font-size:12.5px;text-decoration:none;border:1px solid var(--line);
+  padding:4px 10px;border-radius:6px;white-space:nowrap}
+a.zh:hover{color:var(--dim);border-color:#31364a}
+
+.hero{padding:64px 0 10px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:1.6px;color:var(--accent);text-transform:uppercase}
+.hero h1{font-size:38px;line-height:1.22;font-weight:600;letter-spacing:-.8px;margin-top:16px}
+.hero h1 em{font-style:normal;color:var(--crit)}
+.lede{color:var(--dim);margin-top:18px;font-size:16px;max-width:600px}
+.cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;
+  padding:13px 26px;border-radius:9px;font-weight:600;font-size:14.5px}
+.btn:hover{background:#3d8ee8}
+.btn.alt{background:transparent;color:var(--dim);border:1px solid var(--line);font-weight:400}
+.btn.alt:hover{color:var(--txt);border-color:#31364a;background:transparent}
+.trust{margin-top:16px;color:var(--dim2);font-size:12.5px}
+
+.section{margin-top:64px}
+.section h2{font-size:20px;font-weight:600;letter-spacing:-.2px}
+.section .sub{color:var(--dim);margin-top:8px;font-size:14px}
+
+.case{margin-top:36px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px}
+.case .big{font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--crit);
+  letter-spacing:-1.5px;line-height:1.05;margin-bottom:10px}
+.case .cap{color:var(--dim);font-size:14px}
+.case .rows{margin-top:20px;display:grid;gap:10px}
+.case .r{display:flex;gap:10px;font-size:13.5px;color:var(--dim)}
+.case .r b{color:var(--txt);font-weight:500;flex:0 0 auto}
+
+.steps{margin-top:24px;display:grid;gap:12px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start}
+.step .num{font-family:var(--mono);font-size:12px;color:var(--accent);border:1px solid var(--line);
+  border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.step .tx b{display:block;font-size:14.5px;font-weight:600;margin-bottom:3px}
+.step .tx span{color:var(--dim);font-size:13.5px}
+
+.risk{margin-top:24px;display:grid;gap:10px}
+.rk{background:var(--panel);border:1px solid var(--line);border-left-width:3px;border-radius:10px;padding:14px 18px}
+.rk.c{border-left-color:var(--crit)} .rk.h{border-left-color:var(--high)}
+.rk.m{border-left-color:var(--med)} .rk.l{border-left-color:var(--low)}
+.rk b{font-size:13.5px;font-weight:600}
+.rk span{display:block;color:var(--dim);font-size:13px;margin-top:2px}
+.rk .tag{float:right;font-family:var(--mono);font-size:11px;color:var(--dim2)}
+
+.faq{margin-top:24px;display:grid;gap:2px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0}
+details+details{margin-top:8px}
+summary{cursor:pointer;padding:15px 18px;font-size:14px;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--dim2);font-family:var(--mono)}
+details[open] summary::after{content:"-"}
+details p{padding:0 18px 16px;color:var(--dim);font-size:13.5px}
+
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim2);font-size:12px;line-height:1.8}
+footer a{color:var(--dim);text-decoration:none;border-bottom:1px dotted var(--line)}
+footer a:hover{color:var(--accent)}
+
+@media(max-width:720px){
+  .brand span{display:none}
+  .hero{padding:44px 0 6px}
+  .hero h1{font-size:27px;letter-spacing:-.4px}
+  .lede{font-size:15px}
+  .case .big{font-size:34px;letter-spacing:-1px}
+  .section{margin-top:48px}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*UI-POLISH-START*/
+/* ============================================================
+   ApproveGuard · 全站视觉系统（唯一来源）
+   ------------------------------------------------------------
+   视觉调性：深色、冷静、精确。像安全仪表盘，不像营销页。
+   层级靠「材质 + 留白」区分，不靠堆线框。
+
+   1. 设计令牌：色板 / 字体 / 间距 / 圆角 / 尺寸 / 材质 / 动效
+   2. 基础层（全部用 :where 降优先级，只兜底，不抢页面自己的规则）
+   3. 组件层：按钮 / 输入 / 胶囊 / 徽章 / 卡片 / 引用 / 页脚
+   4. 页型节奏：scan（工具）/ land（落地页）/ report（长文）/ incidents（档案）
+   5. 响应式：≥1024 / ≤900 / ≤720 / ≤390
+   6. 无障碍：减弱动效 / 提高对比 / 键盘焦点
+
+   注入方式：node tools/inject-ui.js
+   直接改 HTML 里的样式会被下一次注入覆盖 —— 改这里。
+   ============================================================ */
+
+/* ---------- 1. 设计令牌 ---------- */
+:root{
+  /* 1.1 色板：背景三阶（越靠上越亮，模拟实体层叠）
+     注意：--surface-1 要明显亮于 --bg，否则卡片在深色底上会「消失」。
+     工具页原来的 #111318 层级是对的，统一时保留了它，只把底色压深。 */
+  --bg:#08090b;              /* 页面底色 */
+  --surface-1:#101319;       /* 卡片 / 面板（必须有可见的层级差） */
+  --surface-2:#161a21;       /* 悬停 / 嵌套层 */
+  --bg-2:#0c0e12;            /* 下沉分区（档案页沿用） */
+  --panel:var(--surface-1);  /* 旧名兼容（工具页在用） */
+  --panel2:var(--surface-2); /* 旧名兼容（工具页在用） */
+
+  /* 1.2 线：半透明发丝线，随背景明暗自适应 */
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.15);
+  --line-strong:var(--line-2);
+
+  /* 1.3 文字三阶：正文 / 次要 / 极弱 */
+  --txt:#f2f4f8;
+  --dim:#9aa1b1;
+  --dim2:#6b7280;
+
+  /* 1.4 语义色：风险等级（Apple 系统色，深浅两套都取 dark 档） */
+  --crit:#ff453a;            /* 高危 / 恶意 */
+  --high:#ff9f0a;            /* 偏高 */
+  --med:#ffd60a;             /* 中等 */
+  --low:#30d158;             /* 安全 */
+
+  /* 1.5 品牌色 */
+  --accent:#0a84ff;
+  --accent-2:#64a8ff;
+  --accent-dim:rgba(10,132,255,.14);
+
+  /* 1.6 字体：中英混排一套栈，不按页面切换 */
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+
+  /* 1.7 字号阶：只允许用这套，禁止一次性数值 */
+  --fs-2xs:11px;    /* 角标、单位、超小注释 */
+  --fs-xs:12px;     /* 说明文字、页脚 */
+  --fs-sm:13px;     /* 次要信息、徽章、按钮 */
+  --fs-base:14.5px; /* 正文基准（工具） */
+  --fs-md:16px;     /* 小标题、强调数值 */
+  --fs-lg:18px;     /* 卡片标题 */
+  --fs-xl:22px;     /* 区块标题 */
+  --fs-2xl:26px;    /* 大数值 */
+  --fs-3xl:34px;    /* 首屏标题 */
+  --fs-4xl:46px;    /* 报告卡数字 */
+  --fs-5xl:60px;    /* 档案页大标题 */
+
+  /* 1.8 行高：按用途分档，不随手写 */
+  --lh-solid:1.05;  /* 超大数字 */
+  --lh-num:1.15;    /* 数字区 */
+  --lh-tight:1.32;  /* 标题 */
+  --lh-snug:1.5;    /* 列表项 */
+  --lh-normal:1.62; /* 界面文本 */
+  --lh-read:1.78;   /* 段落 */
+  --lh-relaxed:1.85;/* 长文阅读 */
+
+  /* 1.9 字重 */
+  --fw-body:400;
+  --fw-mid:500;
+  --fw-bold:600;
+
+  /* 1.10 字距：字号越大越收紧（光学字号） */
+  --ls-tight:-1.2px;  /* 60px 级 */
+  --ls-snug:-.6px;    /* 34px 级 */
+  --ls-normal:-.2px;  /* 18–22px */
+  --ls-wide:.6px;     /* 小写标签 */
+  --ls-caps:1.4px;    /* 全大写角标 */
+
+  /* 1.11 间距阶（4 的倍数） */
+  --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px; --s-9:80px;
+
+  /* 1.12 圆角阶 */
+  --r-xs:6px;    /* 徽章 */
+  --r-sm:8px;    /* 按钮、输入框 */
+  --r-md:12px;   /* 列表项、小卡片 */
+  --r-lg:16px;   /* 大面板 */
+  --r-xl:20px;   /* 首屏卡片 */
+  --r-pill:999px;
+
+  /* 1.13 控件尺寸（全站同一基线，肉眼对齐） */
+  --h-ctl:44px;  /* 主控件：输入框、主按钮 */
+  --h-btn:38px;  /* 次按钮 */
+  --h-pill:32px; /* 胶囊、徽章容器 */
+  --h-badge:22px;/* 行内徽章 */
+
+  /* 1.14 材质与深度 */
+  --glass:saturate(180%) blur(20px);
+  --shadow-1:0 1px 2px rgba(0,0,0,.28);
+  --shadow-2:0 8px 28px -12px rgba(0,0,0,.7);
+  --shadow-pop:0 24px 60px -24px rgba(0,0,0,.85);
+
+  /* 1.15 动效：Apple 弹簧曲线的 CSS 映射
+     .32,.72,0,1  ≈ 阻尼 0.8 / 响应 0.3s（抽屉、弹层）
+     .22,1,.36,1  ≈ 阻尼 1.0 / 响应 0.4s（普通位移，临界阻尼不过冲）
+     .34,1.36,.64,1 → 仅用于按压回弹，等同轻微过冲 */
+  --spring:cubic-bezier(.32,.72,0,1);
+  --spring-soft:cubic-bezier(.22,1,.36,1);
+  --spring-pop:cubic-bezier(.34,1.36,.64,1);
+  --dur-fast:.18s;
+  --dur-mid:.32s;
+  --dur-slow:.6s;
+  --pill:var(--r-pill); /* 旧名兼容 */
+}
+
+/* ---------- 2. 基础层（:where 包裹 → 优先级为 0，页面自己的规则永远赢） ---------- */
+:where(html){-webkit-text-size-adjust:100%}
+:where(html,body){max-width:100%}
+:where(body){
+  font-family:var(--font);
+  font-weight:var(--fw-body);
+  letter-spacing:0;
+  color:var(--txt);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+:where(h1,h2,h3,h4){font-weight:var(--fw-bold);line-height:var(--lh-tight);letter-spacing:var(--ls-normal)}
+:where(b,strong){font-weight:var(--fw-bold)}
+:where(code,kbd,samp){font-family:var(--mono)}
+:where(p,li,td){text-wrap:pretty}
+:where(img,svg){max-width:100%}
+
+/* 数字统一等宽：切换数据时不跳动 */
+.rp-num,.stat .n,.num .n,.case .big,.asym .v,td.amt,td.gap,.loss,.fig .n,
+.row .to i,.qmi span,.card-box{font-variant-numeric:tabular-nums}
+
+/* 键盘焦点：统一可见性（:where 内避免污染页面自定义） */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:var(--r-sm);
+}
+:where(a){color:inherit}
+:where(::selection){background:rgba(10,132,255,.32)}
+
+/* 细滚动条：与卡片圆角、发丝线同一套语言 */
+:where(*)::-webkit-scrollbar{width:10px;height:10px}
+:where(*)::-webkit-scrollbar-track{background:transparent}
+:where(*)::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:var(--r-pill);
+  border:3px solid transparent;background-clip:content-box}
+:where(*)::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);
+  border:3px solid transparent;background-clip:content-box}
+
+/* ---------- 3. 组件层（跨页共用，页型内部可再细化） ---------- */
+/* 3.1 按钮：三种层级，同一高度基线 */
+.btn-main,.btn,.btn-ghost,.go,.revoke,.fbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-ctl);padding:0 22px;border-radius:var(--r-sm);
+  font-family:inherit;font-size:var(--fs-base);font-weight:var(--fw-mid);
+  border:1px solid transparent;cursor:pointer;text-decoration:none;
+  white-space:nowrap;
+  transition:background var(--dur-fast) var(--spring-soft),
+             border-color var(--dur-fast) var(--spring-soft),
+             color var(--dur-fast) var(--spring-soft),
+             transform var(--dur-fast) var(--spring-pop);
+}
+/* 按压即时反馈：不等抬手 */
+.btn-main:active,.btn:active,.btn-ghost:active,.go:active,
+.revoke:active,.fbtn:active,[role="button"]:active{transform:scale(.96)}
+
+/* 3.2 输入框 */
+input[type=text],input[type=search],textarea{
+  font-family:inherit;font-size:var(--fs-base);
+  height:var(--h-ctl);padding:0 15px;border-radius:var(--r-sm);
+  background:rgba(255,255,255,.03);border:1px solid var(--line);
+  color:var(--txt);outline:none;
+  transition:border-color var(--dur-fast),background var(--dur-fast),box-shadow var(--dur-fast);
+}
+input[type=text]:focus,input[type=search]:focus,textarea:focus{
+  border-color:rgba(10,132,255,.55);
+  background:rgba(255,255,255,.05);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+input::placeholder,textarea::placeholder{color:var(--dim2)}
+
+/* 3.3 胶囊 / 徽章：定高，跨行成列 */
+.chip,.pill,.lang,.zh,.back{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-pill);padding:0 13px;border-radius:var(--r-sm);
+  font-size:var(--fs-xs);line-height:1;text-decoration:none;
+  border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--dim);
+  transition:color var(--dur-fast),border-color var(--dur-fast),
+             background var(--dur-fast),transform var(--dur-fast) var(--spring-pop);
+}
+.chip:hover,.pill:hover,.lang:hover,.zh:hover,.back:hover{
+  color:var(--txt);border-color:var(--line-2);background:rgba(255,255,255,.05);
+}
+.chip:active,.pill:active,.lang:active,.zh:active,.back:active{transform:scale(.955)}
+
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-badge);padding:0 9px;border-radius:var(--r-xs);
+  font-size:var(--fs-2xs);line-height:1;white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+
+/* 3.4 卡片：底色 + 发丝线 + 极浅内高光（不用重阴影，深色下更干净） */
+.card,.case,.asym,.panel,.scanbox,.report,.chart-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+}
+
+/* 3.5 引用块：左侧色条 + 极浅底，与映射表同一视觉语言 */
+.quote{
+  border-left:2px solid var(--crit);
+  background:linear-gradient(90deg,rgba(255,69,58,.06),transparent 70%);
+}
+
+/* 3.6 页脚：统一弱化 + 分隔线 */
+:where(footer){
+  color:var(--dim2);font-size:var(--fs-xs);line-height:1.9;
+  border-top:1px solid var(--line);
+}
+
+/* ---------- 4A. 页型 scan：工具界面 ---------- */
+body[data-page="scan"]{
+  font-size:var(--fs-base);line-height:var(--lh-normal);
+  padding:0 20px 88px;
+}
+body[data-page="scan"] .wrap{max-width:940px}
+
+body[data-page="scan"] header{padding:26px 0 0}
+body[data-page="scan"] .brand{font-size:15px;line-height:1.2}
+body[data-page="scan"] .brand span{font-size:var(--fs-xs);letter-spacing:.3px}
+body[data-page="scan"] a.lang{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 12px;
+  font-size:var(--fs-xs);border-radius:var(--pill);line-height:1
+}
+
+/* 首屏：上留白大、下留白小，形成"标题区"边界 */
+body[data-page="scan"] .hero{padding:56px 0 26px}
+body[data-page="scan"] .hero h1{
+  font-size:clamp(23px,3.1vw,33px);line-height:1.26;letter-spacing:var(--ls-snug);max-width:780px;
+}
+body[data-page="scan"] .hero p{
+  margin-top:var(--s-3);font-size:var(--fs-base);line-height:var(--lh-read);
+  max-width:660px;color:var(--dim);
+}
+
+body[data-page="scan"] .scanbox{padding:20px;border-radius:var(--r-lg);margin-top:var(--s-3)}
+body[data-page="scan"] .field{gap:var(--s-3)}
+body[data-page="scan"] input[type=text]{font-size:var(--fs-base);padding:0 15px;height:var(--h-ctl)}
+body[data-page="scan"] .btn-main{padding:0 26px;height:var(--h-ctl);font-size:var(--fs-base)}
+body[data-page="scan"] .btn-ghost{padding:0 16px;height:var(--h-btn);font-size:var(--fs-sm);line-height:1}
+body[data-page="scan"] .chains{gap:var(--s-2);margin-top:0}
+body[data-page="scan"] .chainrow{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-4)}
+body[data-page="scan"] .chip{height:var(--h-pill);padding:0 12px;font-size:var(--fs-xs);line-height:1}
+body[data-page="scan"] .hint{font-size:var(--fs-xs);margin:0 0 0 auto;white-space:nowrap}
+body[data-page="scan"] .pickw{height:var(--h-btn);font-size:var(--fs-sm)}
+
+body[data-page="scan"] .report{padding:26px 26px 22px;border-radius:var(--r-lg);margin-top:var(--s-6)}
+body[data-page="scan"] .rp-label{font-size:var(--fs-xs);letter-spacing:var(--ls-wide)}
+body[data-page="scan"] .rp-num{font-size:var(--fs-4xl);line-height:var(--lh-num);letter-spacing:var(--ls-tight);margin:var(--s-1) 0 var(--s-1)}
+body[data-page="scan"] .rp-cap,body[data-page="scan"] .rp-note{font-size:var(--fs-xs);line-height:1.65}
+body[data-page="scan"] .rp-div{margin:var(--s-5) 0 var(--s-4)}
+body[data-page="scan"] .rp-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-5) var(--s-5)}
+body[data-page="scan"] .rp-cell .k{font-size:var(--fs-2xs);letter-spacing:.5px;margin-bottom:var(--s-1)}
+body[data-page="scan"] .rp-cell .v{font-size:var(--fs-md);line-height:var(--lh-snug)}
+body[data-page="scan"] .rp-cell .v.ell{font-size:var(--fs-sm)}
+body[data-page="scan"] .concl{margin-top:var(--s-5);padding:var(--s-4) 18px;border-radius:var(--r-md);
+  font-size:var(--fs-sm);line-height:1.8}
+body[data-page="scan"] .share-row{gap:var(--s-2);margin-top:var(--s-4)}
+body[data-page="scan"] .share-row button{height:var(--h-pill)}
+
+body[data-page="scan"] .ages{margin-top:var(--s-5)}
+body[data-page="scan"] .ages .lg{gap:var(--s-4);font-size:var(--fs-2xs)}
+body[data-page="scan"] .stats{gap:var(--s-3);margin-top:var(--s-4)}
+body[data-page="scan"] .stat{padding:var(--s-4);border-radius:var(--r-md)}
+body[data-page="scan"] .stat .n{font-size:var(--fs-xl);line-height:1.2}
+body[data-page="scan"] .stat .l{font-size:var(--fs-2xs);line-height:1.5;margin-top:var(--s-1)}
+
+body[data-page="scan"] .sec-title{margin:var(--s-7) 0 var(--s-3);font-size:var(--fs-md);gap:var(--s-2)}
+body[data-page="scan"] .sec-title span{font-size:var(--fs-xs)}
+body[data-page="scan"] .filters{gap:var(--s-2);margin-bottom:var(--s-3)}
+body[data-page="scan"] .fbtn{height:var(--h-pill);padding:0 13px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+body[data-page="scan"] .batch{gap:var(--s-2);margin:0 0 var(--s-3)}
+body[data-page="scan"] .batch button{height:var(--h-pill);padding:0 13px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+body[data-page="scan"] .batch .bl{font-size:var(--fs-xs)}
+
+body[data-page="scan"] .row{padding:var(--s-4);margin-bottom:var(--s-2);border-radius:var(--r-md);gap:var(--s-4);
+  transition:border-color var(--dur-fast),background var(--dur-fast)}
+body[data-page="scan"] .row .tk b{font-size:var(--fs-base)}
+body[data-page="scan"] .row .tk i,body[data-page="scan"] .row .to i{font-size:var(--fs-2xs)}
+body[data-page="scan"] .row .to b{font-size:var(--fs-sm)}
+body[data-page="scan"] .badge{font-size:var(--fs-2xs);height:var(--h-badge);display:inline-flex;align-items:center;
+  justify-content:center;padding:0 9px;border-radius:var(--r-xs)}
+/* 徽章定宽：同一列在不同行之间保持对齐 */
+body[data-page="scan"] .row .meta>.b-usd{min-width:72px}
+body[data-page="scan"] .row .meta>.b-age{min-width:48px}
+body[data-page="scan"] .row .meta>.b-crit,
+body[data-page="scan"] .row .meta>.b-high,
+body[data-page="scan"] .row .meta>.b-med,
+body[data-page="scan"] .row .meta>.b-ok,
+body[data-page="scan"] .row .meta>.b-trust{min-width:66px}
+body[data-page="scan"] .revoke{height:var(--h-pill);padding:0 14px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+
+body[data-page="scan"] .empty{padding:56px 20px;border-radius:var(--r-md)}
+body[data-page="scan"] footer{margin-top:var(--s-8);padding-top:var(--s-5);font-size:var(--fs-xs);line-height:1.9}
+body[data-page="scan"] footer a{text-decoration:none;border-bottom:1px dotted var(--line)}
+body[data-page="scan"] footer a:hover{color:var(--accent);border-bottom-color:transparent}
+
+body[data-page="scan"] .hist{font-size:var(--fs-xs);line-height:1.75;padding:10px 14px}
+
+@media(max-width:900px){
+  body[data-page="scan"] .rp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  body[data-page="scan"]{font-size:14px;padding:0 16px 72px}
+  body[data-page="scan"] .hero{padding:36px 0 22px}
+  body[data-page="scan"] .hero h1{font-size:22px;letter-spacing:var(--ls-normal);line-height:var(--lh-tight)}
+  body[data-page="scan"] .hero p{font-size:13.5px;line-height:1.8}
+  body[data-page="scan"] .scanbox{padding:16px;border-radius:var(--r-md)}
+  body[data-page="scan"] .report{padding:20px 18px 18px;margin-top:var(--s-5)}
+  body[data-page="scan"] .rp-num{font-size:36px;letter-spacing:var(--ls-snug)}
+  body[data-page="scan"] .rp-grid{grid-template-columns:1fr;gap:var(--s-3)}
+  body[data-page="scan"] .stats{gap:var(--s-2)}
+  body[data-page="scan"] .sec-title{margin-top:var(--s-6)}
+  body[data-page="scan"] .row{padding:var(--s-3);gap:var(--s-2) var(--s-3)}
+  /* 移动端重排为三段：币种 → 合约/地址 → 徽章 + 撤销，避免徽章把列挤扁 */
+  body[data-page="scan"] .row{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"tk tk" "to revoke" "meta meta";
+    align-items:center;
+  }
+  body[data-page="scan"] .row .tk{grid-area:tk;min-width:0;width:auto;
+    display:flex;align-items:baseline;gap:var(--s-2);flex-wrap:wrap}
+  body[data-page="scan"] .row .tk i{display:inline}
+  body[data-page="scan"] .row .to{grid-area:to;
+    display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+  body[data-page="scan"] .row .to b{font-size:var(--fs-xs)}
+  body[data-page="scan"] .row .meta{grid-area:meta;justify-self:stretch;gap:6px}
+  body[data-page="scan"] .row .revoke{grid-area:revoke;justify-self:end;white-space:nowrap;align-self:center}
+  body[data-page="scan"] footer{margin-top:var(--s-7)}
+}
+
+/* ---------- 4B. 页型 land：英文落地页 ---------- */
+body[data-page="land"]{
+  font-size:15px;line-height:var(--lh-normal);padding:0 20px 88px;
+}
+body[data-page="land"] .wrap{max-width:800px}
+body[data-page="land"] header{padding:26px 0 0}
+body[data-page="land"] a.zh{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 12px;
+  font-size:var(--fs-xs);border-radius:var(--pill);line-height:1
+}
+body[data-page="land"] .brand{font-size:15px}
+
+body[data-page="land"] .hero{padding:72px 0 8px}
+body[data-page="land"] .hero h1{
+  font-size:clamp(28px,4vw,40px);line-height:1.18;letter-spacing:var(--ls-tight);max-width:720px;
+}
+body[data-page="land"] .lede{margin-top:var(--s-5);font-size:16.5px;line-height:1.72;max-width:620px}
+body[data-page="land"] .cta{margin-top:var(--s-6);gap:var(--s-3)}
+body[data-page="land"] .btn{height:var(--h-ctl);display:inline-flex;align-items:center;padding:0 26px;
+  border-radius:var(--r-sm);font-size:15px}
+body[data-page="land"] .trust{margin-top:var(--s-4);font-size:var(--fs-xs)}
+
+body[data-page="land"] .section{margin-top:76px}
+body[data-page="land"] .section h2{font-size:var(--fs-xl);line-height:var(--lh-tight);letter-spacing:var(--ls-normal)}
+body[data-page="land"] .section .sub{margin-top:var(--s-2);font-size:14.5px;line-height:1.7}
+body[data-page="land"] .case{margin-top:var(--s-6);padding:26px;border-radius:var(--r-lg)}
+body[data-page="land"] .case .big{font-size:44px;line-height:var(--lh-solid);margin-bottom:var(--s-3)}
+body[data-page="land"] .case .cap{font-size:14.5px;line-height:1.7}
+body[data-page="land"] .case .rows{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .case .r{font-size:var(--fs-sm);line-height:1.6}
+body[data-page="land"] .steps{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .step{padding:18px 22px;border-radius:var(--r-md);gap:var(--s-4)}
+body[data-page="land"] .risk{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .rk{padding:var(--s-4) 20px;border-radius:var(--r-md)}
+body[data-page="land"] .faq{margin-top:var(--s-5)}
+body[data-page="land"] summary{padding:16px 20px;font-size:14.5px}
+body[data-page="land"] details{border-radius:var(--r-md)}
+body[data-page="land"] details p{padding:0 20px 18px;font-size:14px;line-height:1.75}
+body[data-page="land"] footer{margin-top:76px;padding-top:var(--s-5);font-size:var(--fs-xs);line-height:1.9}
+
+@media(max-width:720px){
+  body[data-page="land"]{padding:0 18px 72px}
+  body[data-page="land"] .hero{padding:48px 0 4px}
+  body[data-page="land"] .hero h1{font-size:28px;letter-spacing:var(--ls-snug)}
+  body[data-page="land"] .lede{font-size:15.5px;margin-top:var(--s-4)}
+  body[data-page="land"] .section{margin-top:56px}
+  body[data-page="land"] .cta{flex-direction:column;align-items:stretch;gap:var(--s-2)}
+  body[data-page="land"] .btn{justify-content:center}
+  body[data-page="land"] .case{padding:20px 18px}
+  body[data-page="land"] .case .big{font-size:34px}
+  body[data-page="land"] footer{margin-top:56px}
+}
+
+/* ---------- 4C. 页型 report：长文分析 ---------- */
+body[data-page="report"]{
+  font-size:15.5px;line-height:var(--lh-relaxed);padding:0 22px 104px;
+}
+body[data-page="report"] .wrap{max-width:880px}
+body[data-page="report"] header{padding:28px 0 0}
+body[data-page="report"] .back{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 14px;
+  font-size:var(--fs-xs);border-radius:var(--r-sm);line-height:1
+}
+
+body[data-page="report"] .hero{padding:56px 0 8px}
+body[data-page="report"] .eyebrow{font-size:var(--fs-2xs);letter-spacing:2px}
+body[data-page="report"] .hero h1{
+  font-size:clamp(26px,3.4vw,38px);line-height:1.28;letter-spacing:var(--ls-snug);margin-top:var(--s-3);
+}
+body[data-page="report"] .lede{margin-top:var(--s-4);font-size:16px;line-height:1.82;max-width:720px}
+
+body[data-page="report"] .nums{margin-top:var(--s-6);border-radius:var(--r-lg)}
+body[data-page="report"] .num{padding:22px 20px}
+body[data-page="report"] .num .n{font-size:var(--fs-2xl);line-height:1.2;letter-spacing:-.8px}
+body[data-page="report"] .num .l{font-size:var(--fs-xs);line-height:1.55;margin-top:var(--s-1)}
+
+body[data-page="report"] section{margin-top:72px}
+body[data-page="report"] h2{font-size:clamp(19px,2.4vw,23px);line-height:1.4;letter-spacing:-.35px;gap:10px}
+body[data-page="report"] h3{font-size:var(--fs-md);margin-top:36px;line-height:1.6}
+body[data-page="report"] p{margin-top:var(--s-3);line-height:1.9}
+body[data-page="report"] .sub{font-size:14px;margin-top:var(--s-2);line-height:1.7}
+
+body[data-page="report"] .eras{margin-top:var(--s-5)}
+body[data-page="report"] .era{padding:22px 0;gap:var(--s-5)}
+body[data-page="report"] .era .when{color:var(--dim2);font-size:var(--fs-2xs);letter-spacing:.5px}
+body[data-page="report"] .era .when b{color:var(--txt);font-size:17px;letter-spacing:-.3px}
+body[data-page="report"] .era .what b{font-size:15px;line-height:1.55}
+body[data-page="report"] .era .what span{font-size:14px;line-height:1.75;margin-top:var(--s-1);color:var(--dim)}
+
+body[data-page="report"] .tbl-wrap{margin-top:var(--s-5)}
+body[data-page="report"] table{font-size:14px}
+body[data-page="report"] th{padding:0 12px 10px;font-size:var(--fs-2xs);letter-spacing:1.1px}
+body[data-page="report"] td{padding:13px 12px;line-height:1.7}
+
+body[data-page="report"] .roles{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="report"] .role{padding:20px 22px;border-radius:0 var(--r-md) var(--r-md) 0}
+body[data-page="report"] .role p{font-size:14px;line-height:1.78;margin-top:var(--s-2)}
+body[data-page="report"] .role .ev{font-size:var(--fs-xs);line-height:1.7;margin-top:var(--s-3);padding-top:10px}
+
+body[data-page="report"] .asym{margin-top:var(--s-5);padding:26px;border-radius:var(--r-lg)}
+body[data-page="report"] .asym .row{padding:12px 0}
+body[data-page="report"] .asym .note{margin-top:var(--s-4);padding-top:var(--s-4);font-size:14px;line-height:1.8}
+
+body[data-page="report"] .layers{margin-top:var(--s-5);gap:var(--s-4)}
+body[data-page="report"] .layer{padding:24px;border-radius:var(--r-lg)}
+body[data-page="report"] .layer h4{margin-top:var(--s-4);font-size:var(--fs-2xs);letter-spacing:var(--ls-caps)}
+body[data-page="report"] .layer li{font-size:14px;line-height:1.8;margin-top:6px}
+
+body[data-page="report"] .map{margin-top:var(--s-5);border-radius:var(--r-md)}
+body[data-page="report"] .mrow>div{padding:16px 18px}
+body[data-page="report"] .mrow .left,body[data-page="report"] .mrow .right{font-size:14px;line-height:1.75}
+
+body[data-page="report"] .quote{margin-top:var(--s-7);padding:26px 28px;border-radius:0 var(--r-md) var(--r-md) 0}
+body[data-page="report"] .quote p{font-size:17px;line-height:1.8}
+
+body[data-page="report"] .cta{margin-top:var(--s-7);padding:28px;border-radius:var(--r-lg)}
+body[data-page="report"] .cta b{font-size:var(--fs-md);margin-bottom:var(--s-2)}
+body[data-page="report"] .cta span{font-size:14px;line-height:1.7}
+body[data-page="report"] .cta a{height:var(--h-ctl);display:inline-flex;align-items:center;margin-top:var(--s-4);
+  border-radius:var(--r-sm);font-size:14px}
+body[data-page="report"] footer{margin-top:var(--s-8);padding-top:var(--s-5);
+  font-size:var(--fs-xs);line-height:1.95}
+
+@media(max-width:720px){
+  body[data-page="report"]{font-size:14.8px;line-height:1.82;padding:0 18px 80px}
+  body[data-page="report"] .hero{padding:36px 0 4px}
+  body[data-page="report"] .hero h1{font-size:25px;letter-spacing:-.4px;line-height:var(--lh-tight)}
+  body[data-page="report"] .lede{font-size:15px;line-height:1.8}
+  body[data-page="report"] .nums{margin-top:var(--s-5)}
+  body[data-page="report"] .num{padding:16px 14px}
+  body[data-page="report"] .num .n{font-size:var(--fs-xl)}
+  body[data-page="report"] section{margin-top:56px}
+  body[data-page="report"] h2{font-size:20px}
+  body[data-page="report"] p{line-height:1.85}
+  body[data-page="report"] .era{padding:18px 0}
+  body[data-page="report"] .asym{padding:18px}
+  body[data-page="report"] .layer{padding:20px 18px}
+  body[data-page="report"] .quote{padding:20px 18px}
+  body[data-page="report"] .quote p{font-size:15.5px}
+  body[data-page="report"] .cta{padding:22px 18px}
+  body[data-page="report"] footer{margin-top:var(--s-7)}
+}
+
+/* ---------- 4D. 页型 incidents：攻击事件档案 ----------
+   这一页有自己的光学校式与玻璃层级，通用排版规则不得覆盖。
+   这里只做两件事：统一令牌（颜色/字体已由上面的 :root 接管）＋ 让顶栏多按钮不吃亏。 */
+body[data-page="incidents"]{background-color:var(--bg)}
+body[data-page="incidents"] .nav-in{gap:var(--s-2)}
+body[data-page="incidents"] .pill{height:var(--h-pill);font-size:var(--fs-xs)}
+body[data-page="incidents"] .brand span{letter-spacing:var(--ls-caps)}
+@media(max-width:720px){
+  /* 窄屏只留语言开关，返回按钮收成图标宽度，避免三个元素挤掉品牌名 */
+  body[data-page="incidents"] .nav-in{gap:6px}
+  body[data-page="incidents"] .pill{padding:0 10px;font-size:var(--fs-2xs)}
+}
+
+/* ---------- 4E. 品牌标记 ----------
+   替换掉原来「方框套方块」的 CSS 画法：那个标记没有任何含义，两个同心直角方框
+   在 24px 下也看不出结构。改成盾牌 + 对勾，尺寸统一 26px（原来 24/26 混用）。 */
+svg.logo{
+  width:26px;height:26px;flex:0 0 auto;display:block;
+  border:0;border-radius:0;background:none;overflow:visible;
+}
+/* 旧页面用伪元素画的内方块，换成 svg 后必须彻底关掉 */
+svg.logo::before,svg.logo::after{content:none!important;display:none!important}
+
+/* ---------- 4F. 语言切换：档案页顶栏唯一的跨语言入口 ----------
+   EN 两个字母太容易看成装饰，被当成「没有英文版」。这里给它实心色描边 +
+   图标 + 完整语种名，权重高于旁边的普通胶囊，但仍是次要动作，不抢主 CTA。 */
+a.lang-sw{
+  display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;
+  height:var(--h-pill);padding:0 12px 0 10px;border-radius:var(--pill);
+  font-size:var(--fs-xs);font-weight:500;letter-spacing:-.05px;
+  color:var(--accent);text-decoration:none;white-space:nowrap;
+  border:1px solid rgba(10,132,255,.45);                            /* 老浏览器兜底 */
+  border-color:color-mix(in srgb,var(--accent) 45%,transparent);
+  background:rgb(10 132 255 / .10);                                 /* 老浏览器兜底 */
+  background:color-mix(in srgb,var(--accent) 10%,transparent);
+  transition:transform .45s var(--spring-pop),color .2s,background .2s,border-color .2s;
+}
+a.lang-sw svg{width:13px;height:13px;flex:0 0 auto;opacity:.85;transition:opacity .2s}
+a.lang-sw:hover{color:#fff;border-color:transparent;background:var(--accent)}
+a.lang-sw:hover svg{opacity:1}
+a.lang-sw:active{transform:scale(.955)}
+a.lang-sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:720px){
+  /* 窄屏腾位置：品牌副标题让位给完整语种名，品牌主轴本身不动 */
+  body[data-page="incidents"] .brand span{display:none}
+  a.lang-sw{padding:0 10px 0 8px;gap:5px;font-size:var(--fs-2xs);min-height:32px}
+}
+
+/* ---------- 5. 小屏触摸友好 ---------- */
+@media(max-width:720px){
+  body[data-page] button,body[data-page] a.lang,body[data-page] a.zh,
+  body[data-page] a.back,body[data-page] a.pill{min-height:32px}
+}
+
+/* ---------- 6. 无障碍 ---------- */
+/* 减弱动效：只保留必要的状态切换，不做位移动画 */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;
+  }
+  .btn-main:active,.btn:active,.btn-ghost:active,.go:active,
+  .revoke:active,.fbtn:active,.chip:active,.pill:active{transform:none}
+}
+/* 提高对比度：线更实、弱化文字提亮 */
+@media(prefers-contrast:more){
+  :root{
+    --line:rgba(255,255,255,.22);
+    --line-2:rgba(255,255,255,.34);
+    --dim:#c3c9d4;
+    --dim2:#9aa1b1;
+  }
+}
+/* 浅色系统偏好下不做反转，仅提示浏览器控件用深色 */
+@media(prefers-color-scheme:light){
+  :root{color-scheme:dark}
+}
+
+/*UI-POLISH-END*/
+</style>
+</head>
+<body data-page="land">
+<div class="wrap">
+  <header>
+    <div class="head-left">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><defs><linearGradient id="agMark" x1="3" y1="2" x2="23" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#0a84ff"/></linearGradient></defs><path d="M13 2.4 21.8 5.6v7.2c0 4.8-3.6 8.7-8.8 10.8-5.2-2.1-8.8-6-8.8-10.8V5.6Z" fill="url(#agMark)" fill-opacity=".12" stroke="url(#agMark)" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.6 13.2l2.9 2.9 5.9-6.1" fill="none" stroke="url(#agMark)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="brand">ApproveGuard<span>WALLET CHECK</span></div>
+    </div>
+    <div class="head-right">
+      <a class="zh" href="past-attacks-en.html">Past attacks</a>
+      <a class="lang-sw" href="index.html" hreflang="zh-Hans" aria-label="Read this page in Chinese"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg><span>Chinese</span></a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Wallet approval scanner</div>
+    <h1>How much of your money is <em>one signature</em> away from being taken?</h1>
+    <p class="lede">
+      Every DApp you have ever used still holds a permission on your wallet. Most people have no idea
+      how many, how old, or how much they are worth. We scan five chains and answer that in 30 seconds —
+      with a dollar figure, not a list you have to interpret.
+    </p>
+    <div class="cta">
+      <a class="btn" href="app-en.html">Check your wallet</a>
+      <a class="btn alt" href="#limits">See what it cannot tell you</a>
+    </div>
+    <div class="trust">Read-only. No wallet connection required to scan. We never touch keys and never ask for a signature.</div>
+  </section>
+
+  <div class="case">
+    <div class="big">$6.34B</div>
+    <div class="cap">Taken from a single exchange in October 2026 — without breaking a single line of code.</div>
+    <div class="rows">
+      <div class="r"><b>Cause</b><span>Compromised operator credentials, not a smart contract exploit.</span></div>
+      <div class="r"><b>Lesson</b><span>You cannot audit a custodial exchange. You can audit your own approvals.</span></div>
+    </div>
+  </div>
+
+  <section class="section" id="how">
+    <h2>What you actually get</h2>
+    <p class="sub">Not a table of contracts. One number, one age, one sentence you can act on.</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div class="tx"><b>Paste an address</b><span>No wallet connection, no signature, no upload. A public address is enough.</span></div></div>
+      <div class="step"><div class="num">2</div><div class="tx"><b>We scan 5 chains at once</b><span>Ethereum, BNB Chain, Arbitrum, Polygon and Base — ERC-20 plus ERC-721 and ERC-1155 NFT approvals.</span></div></div>
+      <div class="step"><div class="num">3</div><div class="tx"><b>You get a number and an age</b><span>How much is exposed right now, and how long the oldest permission has been sitting there.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="why">
+    <h2>Why a dollar figure matters more than a list</h2>
+    <p class="sub">A list of 40 approvals is noise. "$12,340, signed 3 years ago, still valid" is a decision.</p>
+    <p class="sub" style="margin-top:10px">
+      Approval exploits do not need your seed phrase, your password, or your hardware wallet.
+      They only need the permission you already granted and forgot about. Quantifying it is the
+      fastest way to make it real.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>How we rank risk</h2>
+    <p class="sub">Four levels, three inputs: is the contract flagged, is the allowance unlimited, is there a balance behind it.</p>
+    <div class="risk">
+      <div class="rk c"><span class="tag">critical</span><b>Flagged contract</b><span>The token or the approved contract is on a malicious or suspicious list.</span></div>
+      <div class="rk h"><span class="tag">high</span><b>Unlimited + funded</b><span>Unlimited allowance on a token you actually hold. Can be drained in one transaction.</span></div>
+      <div class="rk h"><span class="tag">high</span><b>Whole-collection NFT</b><span>An operator can move any NFT you own in that collection.</span></div>
+      <div class="rk m"><span class="tag">medium</span><b>Unlimited, unfunded</b><span>Harmless today. Becomes exposed the moment you deposit.</span></div>
+      <div class="rk l"><span class="tag">low</span><b>Limited allowance</b><span>Loss is capped at the approved amount.</span></div>
+    </div>
+  </section>
+
+  <section class="section" id="limits">
+    <h2>What it cannot tell you — read this</h2>
+    <div class="faq">
+      <details><summary>Is the dollar figure exact?</summary><p>No. It is a floor, not a ceiling. We only price tokens that have a public market price. Tokens without a price are listed separately as unpriced, and they are usually the obscure ones — which are often the dangerous ones. Treat the number as "at least this much".</p></details>
+      <details><summary>Which chains are covered?</summary><p>ERC-20 approvals on Ethereum, BNB Chain, Arbitrum, Polygon and Base. NFT approvals on all of those except Base, where the data provider does not support it yet.</p></details>
+      <details><summary>Do I need to connect my wallet?</summary><p>Not to scan. Scanning is read-only and only needs a public address. You only connect a wallet if you decide to revoke something, and the transaction is signed by you in your own wallet — this page never sees a key.</p></details>
+      <details><summary>Does revoking cost money?</summary><p>Yes, one gas fee per revocation. This page does not charge anything and does not take a cut. "Batch" here means a queue: you pick a group — all high-risk, all unlimited, everything older than two years — and we walk through it one by one. Each one still needs your own wallet confirmation, because a bundled multicall cannot revoke on your behalf.</p></details>
+      <details><summary>Does it catch Permit2 or signed permits?</summary><p>No, and you should know that. Permit2 allowances and EIP-2612 permits are not stored as token allowances, so public approval APIs do not return them. If you have signed "Permit" popups in Uniswap-style apps, they are not in this report.</p></details>
+      <details><summary>Does it remember my last check?</summary><p>Only inside your own browser. The record never leaves the device and there is no account. When you scan again you get one line telling you how many approvals appeared and how many are gone since last time.</p></details>
+      <details><summary>Can this recover stolen funds?</summary><p>No. Nothing can. This is prevention. If your seed phrase is compromised and a sweeper bot drains any ETH you send in, revoking approvals will not help — abandon that wallet.</p></details>
+      <details><summary>Why is it free?</summary><p>Because the expensive part is reading public on-chain data, and we do that through a third-party security API. No account, no ads, no data collection. If it becomes expensive to run at scale, we will say so.</p></details>
+      <details><summary>Is the Chinese version different?</summary><p>Both run the same scanner. The Chinese version is the primary one and gets new features first; this English page is fully translated and behaves identically.</p></details>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="case" style="margin-top:0">
+      <div class="cap" style="margin-bottom:14px">Run it on your own address. It takes 30 seconds and nothing is stored.</div>
+      <a class="btn" href="app-en.html">Check your wallet</a>
+    </div>
+  </section>
+
+  <footer>
+    Risk data by GoPlus Security. Prices from Gate.io and Binance public market data.<br>
+    Read-only analysis. No custody, no keys, no transactions sent on your behalf.<br>
+    Rankings are derived from third-party labels plus allowance, balance and approval age. Advisory only —
+    not investment advice, not a security guarantee.<br>
+    Built by someone who has been in crypto since 2019 and got tired of watching people lose wallets
+    to approvals they forgot about.
+    <br><a href="past-attacks-en.html">Why approval age is part of the risk → past attacks, 13 cases</a>
+  </footer>
+</div>
+<script>
+document.querySelectorAll('a[href]').forEach(function(a){
+  var raw = a.getAttribute('href');
+  if(!raw || raw.indexOf('://') > -1 || raw.charAt(0) === '#' || raw.indexOf('?') > -1) return;
+  var m = raw.match(/^([^#]*\.html)(#.*)?$/);
+  if(!m) return;
+  a.setAttribute('href', m[1] + location.search + (m[2] || ''));
+});
+</script>
+</body>
+</html>

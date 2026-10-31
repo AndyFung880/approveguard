@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wallet check · ApproveGuard</title>
+<meta name="description" content="30-second check: scan every token and NFT approval you have signed across 5 chains, and get one number — how much can be moved out right now, and how long ago the oldest permission was signed. Read-only. No private keys.">
+<meta property="og:title" content="Wallet check · How much of your money is sitting under someone else's permission?">
+<meta property="og:description" content="Scan every approval across 5 chains. One number: how much can be moved out right now.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://approveguard.app.workbuddy.host/og.png?sharecode=6MNQ32DLT2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How much of your money is one signature away?">
+<meta name="twitter:description" content="Scan token and NFT approvals across 5 chains in 10 seconds. One number. Free, no login, no private keys.">
+<meta name="twitter:image" content="https://approveguard.app.workbuddy.host/og.png?sharecode=6MNQ32DLT2">
+<style>
+:root{
+  --bg:#0a0b0d; --panel:#111318; --panel2:#171a21; --line:#232733;
+  --txt:#e6e8ee; --dim:#8a90a0; --dim2:#5d6373;
+  --crit:#ff4d4f; --high:#ff9f43; --med:#ffd166; --low:#4ade80; --accent:#4a9eff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{max-width:100%;overflow-x:hidden}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  min-height:100vh; padding:0 20px 80px;
+}
+.wrap{max-width:920px;margin:0 auto}
+
+header{padding:28px 0 0;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.head-left{display:flex;align-items:center;gap:10px}
+.head-right{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+a.lang{color:var(--dim2);font-size:12.5px;text-decoration:none;border:1px solid var(--line);
+  padding:4px 10px;border-radius:6px;white-space:nowrap}
+a.lang:hover{color:var(--dim);border-color:#31364a}
+.logo{width:26px;height:26px;border:1.5px solid var(--accent);border-radius:7px;position:relative;flex:0 0 auto}
+.logo::after{content:"";position:absolute;inset:6px;background:var(--accent);border-radius:2px;opacity:.85}
+.brand{font-size:15px;font-weight:600;letter-spacing:.2px}
+.brand span{color:var(--dim2);font-weight:400;margin-left:8px;font-size:12px;letter-spacing:.6px}
+
+.hero{padding:52px 0 32px}
+.hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:1.6px;color:var(--accent);text-transform:uppercase}
+.hero h1{font-size:33px;line-height:1.24;font-weight:600;letter-spacing:-.6px;margin-top:14px}
+.hero h1 em{font-style:normal;color:var(--crit);white-space:nowrap}
+.hero p{color:var(--dim);margin-top:14px;font-size:14.5px;max-width:660px}
+
+.scanbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:8px}
+.field{display:flex;gap:10px}
+input[type=text]{
+  flex:1;background:var(--bg);border:1px solid var(--line);border-radius:9px;
+  color:var(--txt);padding:13px 15px;font-size:14px;font-family:var(--mono);
+  outline:none;transition:border-color .15s;min-width:0;
+}
+input[type=text]:focus{border-color:var(--accent)}
+input[type=text]::placeholder{color:var(--dim2);font-family:-apple-system,"Segoe UI",Helvetica,sans-serif}
+button{font-family:inherit;font-size:14px;cursor:pointer;border:none;border-radius:9px;transition:opacity .15s,background .15s}
+button:disabled{opacity:.5;cursor:not-allowed}
+.btn-main{background:var(--accent);color:#fff;padding:13px 26px;font-weight:600;white-space:nowrap}
+.btn-main:hover:not(:disabled){background:#3d8ee8}
+.btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--line);padding:10px 16px;font-size:13px}
+.btn-ghost:hover{color:var(--txt);border-color:#31364a}
+
+.chains{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;
+  border:1px solid var(--line);background:transparent;color:var(--dim);font-size:12.5px}
+.dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.hint{color:var(--dim2);font-size:12px;margin-left:auto}
+
+.err{margin-top:14px;padding:12px 15px;border-radius:9px;background:rgba(255,77,79,.08);
+  border:1px solid rgba(255,77,79,.28);color:#ff8a8c;font-size:13px;display:none}
+
+.loading{display:none;margin-top:36px;text-align:center;color:var(--dim);font-size:13px}
+.spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--accent);
+  border-radius:50%;margin:0 auto 12px;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.report{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:26px 26px 22px;margin-top:36px;position:relative;overflow:hidden}
+.report::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--crit)}
+.report.clean::before{background:var(--low)}
+.report.zero::before{background:var(--high)}
+.rp-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.rp-label{color:var(--dim);font-size:11.5px;letter-spacing:1.3px;text-transform:uppercase}
+.rp-num{font-size:46px;font-weight:600;font-variant-numeric:tabular-nums;
+  letter-spacing:-1.5px;line-height:1.1;color:var(--crit);margin:6px 0 2px;word-break:break-all}
+.report.clean .rp-num{color:var(--low)}
+.report.zero .rp-num{color:var(--high)}
+.rp-cap{color:var(--dim2);font-size:12.5px}
+.rp-note{color:var(--dim2);font-size:12px;margin-top:5px}
+.rp-div{height:1px;background:var(--line);margin:20px 0 18px}
+.rp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px}
+.rp-cell{min-width:0}
+.rp-cell .k{color:var(--dim2);font-size:12px;margin-bottom:4px}
+.rp-cell .v{font-size:16px;font-weight:600;font-family:var(--mono);letter-spacing:-.3px;
+  overflow-wrap:anywhere;word-break:break-word;line-height:1.35}
+.rp-cell .v.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px;font-family:inherit;letter-spacing:0}
+.rp-cell .v small{font-size:12px;font-weight:400;color:var(--dim);font-family:inherit;letter-spacing:0}
+.concl{margin-top:20px;padding:15px 17px;border-radius:11px;background:rgba(74,158,255,.07);
+  border:1px solid rgba(74,158,255,.2);color:#c3d6ee;font-size:13.5px;line-height:1.75}
+.concl b{color:#fff;font-weight:600}
+.share-row{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.share-row button{flex:0 0 auto}
+.share-ok{color:var(--low);font-size:12.5px;align-self:center}
+
+.ages{margin-top:20px}
+.ages .bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--panel2);margin-top:9px}
+.ages .bar i{display:block;height:100%}
+.ages .lg{display:flex;gap:14px;margin-top:9px;flex-wrap:wrap;font-size:11.5px;color:var(--dim2)}
+.ages .lg span{display:flex;align-items:center;gap:5px}
+.ages .lg em{width:8px;height:8px;border-radius:2px;display:block}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px 16px}
+.stat .n{font-size:24px;font-weight:600;font-family:var(--mono);letter-spacing:-.5px;line-height:1.2}
+.stat .l{color:var(--dim);font-size:12px;margin-top:4px}
+.stat.crit .n{color:var(--crit)} .stat.high .n{color:var(--high)} .stat.acc .n{color:var(--accent)}
+
+.sec-title{display:flex;align-items:center;gap:10px;margin:36px 0 14px;font-size:14px;font-weight:600;flex-wrap:wrap}
+.sec-title span{color:var(--dim2);font-weight:400;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+.filters{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.fbtn{background:transparent;border:1px solid var(--line);color:var(--dim);
+  padding:6px 13px;font-size:12.5px;border-radius:7px}
+.fbtn:hover{color:var(--txt);border-color:#31364a}
+.fbtn.on{background:var(--panel2);border-color:#3a4157;color:var(--txt)}
+
+.row{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+  padding:15px 17px;margin-bottom:9px;display:flex;align-items:center;gap:16px;
+  border-left-width:3px;transition:background .12s}
+.row:hover{background:var(--panel2)}
+.row.critical{border-left-color:var(--crit)}
+.row.high{border-left-color:var(--high)}
+.row.medium{border-left-color:var(--med)}
+.row.low{border-left-color:#2f3646}
+
+.row .tk{width:112px;flex:0 0 auto;min-width:0}
+.row .tk b{font-size:14px;font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .tk i{font-style:normal;color:var(--dim2);font-size:11.5px;font-family:var(--mono);
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .to{flex:1;min-width:0}
+.row .to b{display:block;font-size:13px;font-weight:500;color:#c8ccd8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .to i{font-style:normal;color:var(--dim2);font-size:11.5px;font-family:var(--mono)}
+.row .meta{display:flex;gap:6px;align-items:center;flex:0 0 auto;flex-wrap:wrap}
+
+.badge{font-size:11.5px;padding:3px 9px;border-radius:5px;white-space:nowrap;font-weight:500;flex:0 0 auto}
+.b-crit{background:rgba(255,77,79,.13);color:#ff8082;border:1px solid rgba(255,77,79,.3)}
+.b-high{background:rgba(255,159,67,.13);color:#ffb266;border:1px solid rgba(255,159,67,.3)}
+.b-med{background:rgba(255,209,102,.11);color:#ffd166;border:1px solid rgba(255,209,102,.26)}
+.b-ok{background:rgba(74,222,128,.1);color:#63d98a;border:1px solid rgba(74,222,128,.24)}
+.b-trust{background:rgba(74,158,255,.11);color:#7db8ff;border:1px solid rgba(74,158,255,.26)}
+.b-inf{background:rgba(255,77,79,.1);color:#ff9496;border:1px solid rgba(255,77,79,.24);font-family:var(--mono)}
+.b-age{background:transparent;color:var(--dim);border:1px solid var(--line)}
+.b-usd{background:rgba(74,158,255,.1);color:#8dc0ff;border:1px solid rgba(74,158,255,.24);font-family:var(--mono)}
+
+.revoke{background:transparent;border:1px solid var(--line);color:var(--dim);padding:7px 14px;font-size:12.5px;flex:0 0 auto}
+.revoke:hover{color:var(--txt);border-color:#3a4157}
+
+.empty{text-align:center;padding:56px 20px;color:var(--dim);background:var(--panel);
+  border:1px dashed var(--line);border-radius:12px}
+.empty b{display:block;color:var(--txt);font-size:15px;margin-bottom:6px;font-weight:500}
+
+footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim2);font-size:12px;line-height:1.8}
+footer a{color:var(--dim);text-decoration:none;border-bottom:1px dotted var(--line)}
+footer a:hover{color:var(--accent)}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;
+  justify-content:center;padding:20px;z-index:99}
+.modal-bg.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:26px;max-width:460px;width:100%}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:10px}
+.modal p{color:var(--dim);font-size:13px;margin-bottom:8px}
+.modal code{font-family:var(--mono);font-size:11.5px;background:var(--bg);
+  padding:2px 6px;border-radius:4px;color:#a8b0c0;word-break:break-all}
+.modal .acts{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-danger{background:var(--crit);color:#fff;padding:10px 20px;font-weight:600}
+.btn-accent{background:var(--accent);color:#fff;padding:10px 18px;font-size:13px;font-weight:600}
+.btn-accent:hover:not(:disabled){background:#3d8ee8}
+
+/* share card preview */
+.card-bg{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;
+  justify-content:center;padding:18px;z-index:120;overflow:auto}
+.card-bg.on{display:flex}
+.card-box{max-width:780px;width:100%;margin:auto}
+.card-box img{width:100%;height:auto;display:block;border-radius:12px;
+  border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.65)}
+.card-acts{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.card-tip{color:var(--dim2);font-size:12px;text-align:center;margin-top:10px;line-height:1.6}
+
+.qmlist{max-height:200px;overflow:auto;margin-top:6px;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);padding:6px 0}
+.qmi{display:flex;align-items:center;gap:9px;padding:6px 2px;font-size:12.5px}
+.qmi span{color:var(--dim2);font-family:var(--mono);font-size:11px;min-width:18px}
+.qmi b{color:var(--txt);font-weight:600;min-width:62px}
+.qmi i{font-style:normal;color:var(--dim2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* read address from local wallet — this is a button, not a caption line */
+.pickw{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  margin:10px auto 0;width:fit-content;max-width:100%;padding:0 18px;height:var(--h-btn);
+  font-size:var(--fs-sm);font-weight:500;color:var(--txt);
+  background:rgba(10,132,255,.07);
+  border:1px solid rgba(10,132,255,.32);
+  border-radius:9px;cursor:pointer;
+  transition:background .2s,border-color .2s,color .2s,transform .45s var(--spring-pop);
+}
+.pickw svg{width:15px;height:15px;flex:0 0 auto;color:var(--accent);transition:color .2s}
+.pickw .ws{color:var(--dim2);font-weight:400;font-size:var(--fs-xs)}
+.pickw:hover{background:rgba(10,132,255,.13);border-color:rgba(10,132,255,.55)}
+.pickw:active{transform:scale(.985)}
+.pickw[disabled]{background:transparent;border-color:var(--line);color:var(--dim2);cursor:default}
+.pickw[disabled] svg{color:var(--dim2)}
+@media(max-width:560px){.pickw .ws{display:none}}
+
+/* history diff */
+.hist{margin-top:14px;font-size:12.5px;color:var(--dim);line-height:1.7;
+  background:rgba(74,158,255,.055);border-left:2px solid rgba(74,158,255,.5);
+  padding:9px 13px;border-radius:0 7px 7px 0}
+.hist b{font-weight:600}
+.hist .a{color:var(--high)}
+.hist .r{color:var(--low)}
+.hist .n{color:var(--dim2)}
+
+/* batch bar */
+.batch{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap;align-items:center}
+.batch .bl{color:var(--dim2);font-size:12.5px;margin-right:2px}
+.batch button{background:transparent;border:1px solid var(--line);color:var(--dim);
+  padding:8px 13px;font-size:12.5px;border-radius:8px}
+.batch button:hover:not(:disabled){color:var(--txt);border-color:#31364a}
+.batch button.danger{color:#ff8b8d;border-color:rgba(255,77,79,.28)}
+.batch button.danger:hover:not(:disabled){background:rgba(255,77,79,.09);border-color:rgba(255,77,79,.5)}
+
+/* queue progress */
+.qp{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:110;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:15px 18px;width:min(430px,92vw);display:none;
+  box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.qp.on{display:block}
+.qp .qt{font-size:13.5px;font-weight:600;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px}
+.qp .qt small{color:var(--dim2);font-weight:400;font-size:12px}
+.qp .qbar{height:6px;background:#1d2029;border-radius:3px;overflow:hidden;margin-bottom:9px}
+.qp .qbar i{display:block;height:100%;background:var(--accent);width:0;transition:width .35s}
+.qp .qs{font-size:12px;color:var(--dim);line-height:1.6}
+.qp .qacts{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.qp .qacts button{padding:8px 14px;font-size:12.5px}
+.row.done{opacity:.42}
+.row.done .revoke{color:var(--low);border-color:rgba(74,222,128,.3);cursor:default}
+
+@media(max-width:720px){
+  .brand span{display:none}
+  .hero h1{font-size:23px;letter-spacing:-.2px}
+  .hero{padding:34px 0 22px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .field{flex-direction:column}
+  .report{padding:22px 18px 18px}
+  .rp-num{font-size:36px;letter-spacing:-1px}
+  .rp-grid{grid-template-columns:1fr;gap:13px}
+  .row{
+    display:grid;grid-template-columns:auto minmax(0,1fr);
+    grid-template-areas:"tk to" "meta revoke";
+    gap:10px 10px;padding:14px 15px;align-items:center;
+  }
+  .row .tk{grid-area:tk;min-width:72px;width:auto}
+  .row .to{grid-area:to;min-width:0}
+  .row .meta{grid-area:meta;justify-self:start}
+  .row .revoke{grid-area:revoke;justify-self:end}
+  .row .badge{font-size:11px;padding:3px 7px}
+  .hint{display:none}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*UI-POLISH-START*/
+/* ============================================================
+   ApproveGuard · 全站视觉系统（唯一来源）
+   ------------------------------------------------------------
+   视觉调性：深色、冷静、精确。像安全仪表盘，不像营销页。
+   层级靠「材质 + 留白」区分，不靠堆线框。
+
+   1. 设计令牌：色板 / 字体 / 间距 / 圆角 / 尺寸 / 材质 / 动效
+   2. 基础层（全部用 :where 降优先级，只兜底，不抢页面自己的规则）
+   3. 组件层：按钮 / 输入 / 胶囊 / 徽章 / 卡片 / 引用 / 页脚
+   4. 页型节奏：scan（工具）/ land（落地页）/ report（长文）/ incidents（档案）
+   5. 响应式：≥1024 / ≤900 / ≤720 / ≤390
+   6. 无障碍：减弱动效 / 提高对比 / 键盘焦点
+
+   注入方式：node tools/inject-ui.js
+   直接改 HTML 里的样式会被下一次注入覆盖 —— 改这里。
+   ============================================================ */
+
+/* ---------- 1. 设计令牌 ---------- */
+:root{
+  /* 1.1 色板：背景三阶（越靠上越亮，模拟实体层叠）
+     注意：--surface-1 要明显亮于 --bg，否则卡片在深色底上会「消失」。
+     工具页原来的 #111318 层级是对的，统一时保留了它，只把底色压深。 */
+  --bg:#08090b;              /* 页面底色 */
+  --surface-1:#101319;       /* 卡片 / 面板（必须有可见的层级差） */
+  --surface-2:#161a21;       /* 悬停 / 嵌套层 */
+  --bg-2:#0c0e12;            /* 下沉分区（档案页沿用） */
+  --panel:var(--surface-1);  /* 旧名兼容（工具页在用） */
+  --panel2:var(--surface-2); /* 旧名兼容（工具页在用） */
+
+  /* 1.2 线：半透明发丝线，随背景明暗自适应 */
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.15);
+  --line-strong:var(--line-2);
+
+  /* 1.3 文字三阶：正文 / 次要 / 极弱 */
+  --txt:#f2f4f8;
+  --dim:#9aa1b1;
+  --dim2:#6b7280;
+
+  /* 1.4 语义色：风险等级（Apple 系统色，深浅两套都取 dark 档） */
+  --crit:#ff453a;            /* 高危 / 恶意 */
+  --high:#ff9f0a;            /* 偏高 */
+  --med:#ffd60a;             /* 中等 */
+  --low:#30d158;             /* 安全 */
+
+  /* 1.5 品牌色 */
+  --accent:#0a84ff;
+  --accent-2:#64a8ff;
+  --accent-dim:rgba(10,132,255,.14);
+
+  /* 1.6 字体：中英混排一套栈，不按页面切换 */
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+
+  /* 1.7 字号阶：只允许用这套，禁止一次性数值 */
+  --fs-2xs:11px;    /* 角标、单位、超小注释 */
+  --fs-xs:12px;     /* 说明文字、页脚 */
+  --fs-sm:13px;     /* 次要信息、徽章、按钮 */
+  --fs-base:14.5px; /* 正文基准（工具） */
+  --fs-md:16px;     /* 小标题、强调数值 */
+  --fs-lg:18px;     /* 卡片标题 */
+  --fs-xl:22px;     /* 区块标题 */
+  --fs-2xl:26px;    /* 大数值 */
+  --fs-3xl:34px;    /* 首屏标题 */
+  --fs-4xl:46px;    /* 报告卡数字 */
+  --fs-5xl:60px;    /* 档案页大标题 */
+
+  /* 1.8 行高：按用途分档，不随手写 */
+  --lh-solid:1.05;  /* 超大数字 */
+  --lh-num:1.15;    /* 数字区 */
+  --lh-tight:1.32;  /* 标题 */
+  --lh-snug:1.5;    /* 列表项 */
+  --lh-normal:1.62; /* 界面文本 */
+  --lh-read:1.78;   /* 段落 */
+  --lh-relaxed:1.85;/* 长文阅读 */
+
+  /* 1.9 字重 */
+  --fw-body:400;
+  --fw-mid:500;
+  --fw-bold:600;
+
+  /* 1.10 字距：字号越大越收紧（光学字号） */
+  --ls-tight:-1.2px;  /* 60px 级 */
+  --ls-snug:-.6px;    /* 34px 级 */
+  --ls-normal:-.2px;  /* 18–22px */
+  --ls-wide:.6px;     /* 小写标签 */
+  --ls-caps:1.4px;    /* 全大写角标 */
+
+  /* 1.11 间距阶（4 的倍数） */
+  --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px; --s-9:80px;
+
+  /* 1.12 圆角阶 */
+  --r-xs:6px;    /* 徽章 */
+  --r-sm:8px;    /* 按钮、输入框 */
+  --r-md:12px;   /* 列表项、小卡片 */
+  --r-lg:16px;   /* 大面板 */
+  --r-xl:20px;   /* 首屏卡片 */
+  --r-pill:999px;
+
+  /* 1.13 控件尺寸（全站同一基线，肉眼对齐） */
+  --h-ctl:44px;  /* 主控件：输入框、主按钮 */
+  --h-btn:38px;  /* 次按钮 */
+  --h-pill:32px; /* 胶囊、徽章容器 */
+  --h-badge:22px;/* 行内徽章 */
+
+  /* 1.14 材质与深度 */
+  --glass:saturate(180%) blur(20px);
+  --shadow-1:0 1px 2px rgba(0,0,0,.28);
+  --shadow-2:0 8px 28px -12px rgba(0,0,0,.7);
+  --shadow-pop:0 24px 60px -24px rgba(0,0,0,.85);
+
+  /* 1.15 动效：Apple 弹簧曲线的 CSS 映射
+     .32,.72,0,1  ≈ 阻尼 0.8 / 响应 0.3s（抽屉、弹层）
+     .22,1,.36,1  ≈ 阻尼 1.0 / 响应 0.4s（普通位移，临界阻尼不过冲）
+     .34,1.36,.64,1 → 仅用于按压回弹，等同轻微过冲 */
+  --spring:cubic-bezier(.32,.72,0,1);
+  --spring-soft:cubic-bezier(.22,1,.36,1);
+  --spring-pop:cubic-bezier(.34,1.36,.64,1);
+  --dur-fast:.18s;
+  --dur-mid:.32s;
+  --dur-slow:.6s;
+  --pill:var(--r-pill); /* 旧名兼容 */
+}
+
+/* ---------- 2. 基础层（:where 包裹 → 优先级为 0，页面自己的规则永远赢） ---------- */
+:where(html){-webkit-text-size-adjust:100%}
+:where(html,body){max-width:100%}
+:where(body){
+  font-family:var(--font);
+  font-weight:var(--fw-body);
+  letter-spacing:0;
+  color:var(--txt);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+:where(h1,h2,h3,h4){font-weight:var(--fw-bold);line-height:var(--lh-tight);letter-spacing:var(--ls-normal)}
+:where(b,strong){font-weight:var(--fw-bold)}
+:where(code,kbd,samp){font-family:var(--mono)}
+:where(p,li,td){text-wrap:pretty}
+:where(img,svg){max-width:100%}
+
+/* 数字统一等宽：切换数据时不跳动 */
+.rp-num,.stat .n,.num .n,.case .big,.asym .v,td.amt,td.gap,.loss,.fig .n,
+.row .to i,.qmi span,.card-box{font-variant-numeric:tabular-nums}
+
+/* 键盘焦点：统一可见性（:where 内避免污染页面自定义） */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:var(--r-sm);
+}
+:where(a){color:inherit}
+:where(::selection){background:rgba(10,132,255,.32)}
+
+/* 细滚动条：与卡片圆角、发丝线同一套语言 */
+:where(*)::-webkit-scrollbar{width:10px;height:10px}
+:where(*)::-webkit-scrollbar-track{background:transparent}
+:where(*)::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:var(--r-pill);
+  border:3px solid transparent;background-clip:content-box}
+:where(*)::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);
+  border:3px solid transparent;background-clip:content-box}
+
+/* ---------- 3. 组件层（跨页共用，页型内部可再细化） ---------- */
+/* 3.1 按钮：三种层级，同一高度基线 */
+.btn-main,.btn,.btn-ghost,.go,.revoke,.fbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-ctl);padding:0 22px;border-radius:var(--r-sm);
+  font-family:inherit;font-size:var(--fs-base);font-weight:var(--fw-mid);
+  border:1px solid transparent;cursor:pointer;text-decoration:none;
+  white-space:nowrap;
+  transition:background var(--dur-fast) var(--spring-soft),
+             border-color var(--dur-fast) var(--spring-soft),
+             color var(--dur-fast) var(--spring-soft),
+             transform var(--dur-fast) var(--spring-pop);
+}
+/* 按压即时反馈：不等抬手 */
+.btn-main:active,.btn:active,.btn-ghost:active,.go:active,
+.revoke:active,.fbtn:active,[role="button"]:active{transform:scale(.96)}
+
+/* 3.2 输入框 */
+input[type=text],input[type=search],textarea{
+  font-family:inherit;font-size:var(--fs-base);
+  height:var(--h-ctl);padding:0 15px;border-radius:var(--r-sm);
+  background:rgba(255,255,255,.03);border:1px solid var(--line);
+  color:var(--txt);outline:none;
+  transition:border-color var(--dur-fast),background var(--dur-fast),box-shadow var(--dur-fast);
+}
+input[type=text]:focus,input[type=search]:focus,textarea:focus{
+  border-color:rgba(10,132,255,.55);
+  background:rgba(255,255,255,.05);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+input::placeholder,textarea::placeholder{color:var(--dim2)}
+
+/* 3.3 胶囊 / 徽章：定高，跨行成列 */
+.chip,.pill,.lang,.zh,.back{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-pill);padding:0 13px;border-radius:var(--r-sm);
+  font-size:var(--fs-xs);line-height:1;text-decoration:none;
+  border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--dim);
+  transition:color var(--dur-fast),border-color var(--dur-fast),
+             background var(--dur-fast),transform var(--dur-fast) var(--spring-pop);
+}
+.chip:hover,.pill:hover,.lang:hover,.zh:hover,.back:hover{
+  color:var(--txt);border-color:var(--line-2);background:rgba(255,255,255,.05);
+}
+.chip:active,.pill:active,.lang:active,.zh:active,.back:active{transform:scale(.955)}
+
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--h-badge);padding:0 9px;border-radius:var(--r-xs);
+  font-size:var(--fs-2xs);line-height:1;white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+
+/* 3.4 卡片：底色 + 发丝线 + 极浅内高光（不用重阴影，深色下更干净） */
+.card,.case,.asym,.panel,.scanbox,.report,.chart-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+}
+
+/* 3.5 引用块：左侧色条 + 极浅底，与映射表同一视觉语言 */
+.quote{
+  border-left:2px solid var(--crit);
+  background:linear-gradient(90deg,rgba(255,69,58,.06),transparent 70%);
+}
+
+/* 3.6 页脚：统一弱化 + 分隔线 */
+:where(footer){
+  color:var(--dim2);font-size:var(--fs-xs);line-height:1.9;
+  border-top:1px solid var(--line);
+}
+
+/* ---------- 4A. 页型 scan：工具界面 ---------- */
+body[data-page="scan"]{
+  font-size:var(--fs-base);line-height:var(--lh-normal);
+  padding:0 20px 88px;
+}
+body[data-page="scan"] .wrap{max-width:940px}
+
+body[data-page="scan"] header{padding:26px 0 0}
+body[data-page="scan"] .brand{font-size:15px;line-height:1.2}
+body[data-page="scan"] .brand span{font-size:var(--fs-xs);letter-spacing:.3px}
+body[data-page="scan"] a.lang{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 12px;
+  font-size:var(--fs-xs);border-radius:var(--pill);line-height:1
+}
+
+/* 首屏：上留白大、下留白小，形成"标题区"边界 */
+body[data-page="scan"] .hero{padding:56px 0 26px}
+body[data-page="scan"] .hero h1{
+  font-size:clamp(23px,3.1vw,33px);line-height:1.26;letter-spacing:var(--ls-snug);max-width:780px;
+}
+body[data-page="scan"] .hero p{
+  margin-top:var(--s-3);font-size:var(--fs-base);line-height:var(--lh-read);
+  max-width:660px;color:var(--dim);
+}
+
+body[data-page="scan"] .scanbox{padding:20px;border-radius:var(--r-lg);margin-top:var(--s-3)}
+body[data-page="scan"] .field{gap:var(--s-3)}
+body[data-page="scan"] input[type=text]{font-size:var(--fs-base);padding:0 15px;height:var(--h-ctl)}
+body[data-page="scan"] .btn-main{padding:0 26px;height:var(--h-ctl);font-size:var(--fs-base)}
+body[data-page="scan"] .btn-ghost{padding:0 16px;height:var(--h-btn);font-size:var(--fs-sm);line-height:1}
+body[data-page="scan"] .chains{gap:var(--s-2);margin-top:0}
+body[data-page="scan"] .chainrow{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-4)}
+body[data-page="scan"] .chip{height:var(--h-pill);padding:0 12px;font-size:var(--fs-xs);line-height:1}
+body[data-page="scan"] .hint{font-size:var(--fs-xs);margin:0 0 0 auto;white-space:nowrap}
+body[data-page="scan"] .pickw{height:var(--h-btn);font-size:var(--fs-sm)}
+
+body[data-page="scan"] .report{padding:26px 26px 22px;border-radius:var(--r-lg);margin-top:var(--s-6)}
+body[data-page="scan"] .rp-label{font-size:var(--fs-xs);letter-spacing:var(--ls-wide)}
+body[data-page="scan"] .rp-num{font-size:var(--fs-4xl);line-height:var(--lh-num);letter-spacing:var(--ls-tight);margin:var(--s-1) 0 var(--s-1)}
+body[data-page="scan"] .rp-cap,body[data-page="scan"] .rp-note{font-size:var(--fs-xs);line-height:1.65}
+body[data-page="scan"] .rp-div{margin:var(--s-5) 0 var(--s-4)}
+body[data-page="scan"] .rp-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-5) var(--s-5)}
+body[data-page="scan"] .rp-cell .k{font-size:var(--fs-2xs);letter-spacing:.5px;margin-bottom:var(--s-1)}
+body[data-page="scan"] .rp-cell .v{font-size:var(--fs-md);line-height:var(--lh-snug)}
+body[data-page="scan"] .rp-cell .v.ell{font-size:var(--fs-sm)}
+body[data-page="scan"] .concl{margin-top:var(--s-5);padding:var(--s-4) 18px;border-radius:var(--r-md);
+  font-size:var(--fs-sm);line-height:1.8}
+body[data-page="scan"] .share-row{gap:var(--s-2);margin-top:var(--s-4)}
+body[data-page="scan"] .share-row button{height:var(--h-pill)}
+
+body[data-page="scan"] .ages{margin-top:var(--s-5)}
+body[data-page="scan"] .ages .lg{gap:var(--s-4);font-size:var(--fs-2xs)}
+body[data-page="scan"] .stats{gap:var(--s-3);margin-top:var(--s-4)}
+body[data-page="scan"] .stat{padding:var(--s-4);border-radius:var(--r-md)}
+body[data-page="scan"] .stat .n{font-size:var(--fs-xl);line-height:1.2}
+body[data-page="scan"] .stat .l{font-size:var(--fs-2xs);line-height:1.5;margin-top:var(--s-1)}
+
+body[data-page="scan"] .sec-title{margin:var(--s-7) 0 var(--s-3);font-size:var(--fs-md);gap:var(--s-2)}
+body[data-page="scan"] .sec-title span{font-size:var(--fs-xs)}
+body[data-page="scan"] .filters{gap:var(--s-2);margin-bottom:var(--s-3)}
+body[data-page="scan"] .fbtn{height:var(--h-pill);padding:0 13px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+body[data-page="scan"] .batch{gap:var(--s-2);margin:0 0 var(--s-3)}
+body[data-page="scan"] .batch button{height:var(--h-pill);padding:0 13px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+body[data-page="scan"] .batch .bl{font-size:var(--fs-xs)}
+
+body[data-page="scan"] .row{padding:var(--s-4);margin-bottom:var(--s-2);border-radius:var(--r-md);gap:var(--s-4);
+  transition:border-color var(--dur-fast),background var(--dur-fast)}
+body[data-page="scan"] .row .tk b{font-size:var(--fs-base)}
+body[data-page="scan"] .row .tk i,body[data-page="scan"] .row .to i{font-size:var(--fs-2xs)}
+body[data-page="scan"] .row .to b{font-size:var(--fs-sm)}
+body[data-page="scan"] .badge{font-size:var(--fs-2xs);height:var(--h-badge);display:inline-flex;align-items:center;
+  justify-content:center;padding:0 9px;border-radius:var(--r-xs)}
+/* 徽章定宽：同一列在不同行之间保持对齐 */
+body[data-page="scan"] .row .meta>.b-usd{min-width:72px}
+body[data-page="scan"] .row .meta>.b-age{min-width:48px}
+body[data-page="scan"] .row .meta>.b-crit,
+body[data-page="scan"] .row .meta>.b-high,
+body[data-page="scan"] .row .meta>.b-med,
+body[data-page="scan"] .row .meta>.b-ok,
+body[data-page="scan"] .row .meta>.b-trust{min-width:66px}
+body[data-page="scan"] .revoke{height:var(--h-pill);padding:0 14px;font-size:var(--fs-xs);border-radius:var(--r-sm)}
+
+body[data-page="scan"] .empty{padding:56px 20px;border-radius:var(--r-md)}
+body[data-page="scan"] footer{margin-top:var(--s-8);padding-top:var(--s-5);font-size:var(--fs-xs);line-height:1.9}
+body[data-page="scan"] footer a{text-decoration:none;border-bottom:1px dotted var(--line)}
+body[data-page="scan"] footer a:hover{color:var(--accent);border-bottom-color:transparent}
+
+body[data-page="scan"] .hist{font-size:var(--fs-xs);line-height:1.75;padding:10px 14px}
+
+@media(max-width:900px){
+  body[data-page="scan"] .rp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  body[data-page="scan"]{font-size:14px;padding:0 16px 72px}
+  body[data-page="scan"] .hero{padding:36px 0 22px}
+  body[data-page="scan"] .hero h1{font-size:22px;letter-spacing:var(--ls-normal);line-height:var(--lh-tight)}
+  body[data-page="scan"] .hero p{font-size:13.5px;line-height:1.8}
+  body[data-page="scan"] .scanbox{padding:16px;border-radius:var(--r-md)}
+  body[data-page="scan"] .report{padding:20px 18px 18px;margin-top:var(--s-5)}
+  body[data-page="scan"] .rp-num{font-size:36px;letter-spacing:var(--ls-snug)}
+  body[data-page="scan"] .rp-grid{grid-template-columns:1fr;gap:var(--s-3)}
+  body[data-page="scan"] .stats{gap:var(--s-2)}
+  body[data-page="scan"] .sec-title{margin-top:var(--s-6)}
+  body[data-page="scan"] .row{padding:var(--s-3);gap:var(--s-2) var(--s-3)}
+  /* 移动端重排为三段：币种 → 合约/地址 → 徽章 + 撤销，避免徽章把列挤扁 */
+  body[data-page="scan"] .row{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"tk tk" "to revoke" "meta meta";
+    align-items:center;
+  }
+  body[data-page="scan"] .row .tk{grid-area:tk;min-width:0;width:auto;
+    display:flex;align-items:baseline;gap:var(--s-2);flex-wrap:wrap}
+  body[data-page="scan"] .row .tk i{display:inline}
+  body[data-page="scan"] .row .to{grid-area:to;
+    display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+  body[data-page="scan"] .row .to b{font-size:var(--fs-xs)}
+  body[data-page="scan"] .row .meta{grid-area:meta;justify-self:stretch;gap:6px}
+  body[data-page="scan"] .row .revoke{grid-area:revoke;justify-self:end;white-space:nowrap;align-self:center}
+  body[data-page="scan"] footer{margin-top:var(--s-7)}
+}
+
+/* ---------- 4B. 页型 land：英文落地页 ---------- */
+body[data-page="land"]{
+  font-size:15px;line-height:var(--lh-normal);padding:0 20px 88px;
+}
+body[data-page="land"] .wrap{max-width:800px}
+body[data-page="land"] header{padding:26px 0 0}
+body[data-page="land"] a.zh{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 12px;
+  font-size:var(--fs-xs);border-radius:var(--pill);line-height:1
+}
+body[data-page="land"] .brand{font-size:15px}
+
+body[data-page="land"] .hero{padding:72px 0 8px}
+body[data-page="land"] .hero h1{
+  font-size:clamp(28px,4vw,40px);line-height:1.18;letter-spacing:var(--ls-tight);max-width:720px;
+}
+body[data-page="land"] .lede{margin-top:var(--s-5);font-size:16.5px;line-height:1.72;max-width:620px}
+body[data-page="land"] .cta{margin-top:var(--s-6);gap:var(--s-3)}
+body[data-page="land"] .btn{height:var(--h-ctl);display:inline-flex;align-items:center;padding:0 26px;
+  border-radius:var(--r-sm);font-size:15px}
+body[data-page="land"] .trust{margin-top:var(--s-4);font-size:var(--fs-xs)}
+
+body[data-page="land"] .section{margin-top:76px}
+body[data-page="land"] .section h2{font-size:var(--fs-xl);line-height:var(--lh-tight);letter-spacing:var(--ls-normal)}
+body[data-page="land"] .section .sub{margin-top:var(--s-2);font-size:14.5px;line-height:1.7}
+body[data-page="land"] .case{margin-top:var(--s-6);padding:26px;border-radius:var(--r-lg)}
+body[data-page="land"] .case .big{font-size:44px;line-height:var(--lh-solid);margin-bottom:var(--s-3)}
+body[data-page="land"] .case .cap{font-size:14.5px;line-height:1.7}
+body[data-page="land"] .case .rows{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .case .r{font-size:var(--fs-sm);line-height:1.6}
+body[data-page="land"] .steps{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .step{padding:18px 22px;border-radius:var(--r-md);gap:var(--s-4)}
+body[data-page="land"] .risk{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="land"] .rk{padding:var(--s-4) 20px;border-radius:var(--r-md)}
+body[data-page="land"] .faq{margin-top:var(--s-5)}
+body[data-page="land"] summary{padding:16px 20px;font-size:14.5px}
+body[data-page="land"] details{border-radius:var(--r-md)}
+body[data-page="land"] details p{padding:0 20px 18px;font-size:14px;line-height:1.75}
+body[data-page="land"] footer{margin-top:76px;padding-top:var(--s-5);font-size:var(--fs-xs);line-height:1.9}
+
+@media(max-width:720px){
+  body[data-page="land"]{padding:0 18px 72px}
+  body[data-page="land"] .hero{padding:48px 0 4px}
+  body[data-page="land"] .hero h1{font-size:28px;letter-spacing:var(--ls-snug)}
+  body[data-page="land"] .lede{font-size:15.5px;margin-top:var(--s-4)}
+  body[data-page="land"] .section{margin-top:56px}
+  body[data-page="land"] .cta{flex-direction:column;align-items:stretch;gap:var(--s-2)}
+  body[data-page="land"] .btn{justify-content:center}
+  body[data-page="land"] .case{padding:20px 18px}
+  body[data-page="land"] .case .big{font-size:34px}
+  body[data-page="land"] footer{margin-top:56px}
+}
+
+/* ---------- 4C. 页型 report：长文分析 ---------- */
+body[data-page="report"]{
+  font-size:15.5px;line-height:var(--lh-relaxed);padding:0 22px 104px;
+}
+body[data-page="report"] .wrap{max-width:880px}
+body[data-page="report"] header{padding:28px 0 0}
+body[data-page="report"] .back{
+  display:inline-flex;align-items:center;height:var(--h-pill);padding:0 14px;
+  font-size:var(--fs-xs);border-radius:var(--r-sm);line-height:1
+}
+
+body[data-page="report"] .hero{padding:56px 0 8px}
+body[data-page="report"] .eyebrow{font-size:var(--fs-2xs);letter-spacing:2px}
+body[data-page="report"] .hero h1{
+  font-size:clamp(26px,3.4vw,38px);line-height:1.28;letter-spacing:var(--ls-snug);margin-top:var(--s-3);
+}
+body[data-page="report"] .lede{margin-top:var(--s-4);font-size:16px;line-height:1.82;max-width:720px}
+
+body[data-page="report"] .nums{margin-top:var(--s-6);border-radius:var(--r-lg)}
+body[data-page="report"] .num{padding:22px 20px}
+body[data-page="report"] .num .n{font-size:var(--fs-2xl);line-height:1.2;letter-spacing:-.8px}
+body[data-page="report"] .num .l{font-size:var(--fs-xs);line-height:1.55;margin-top:var(--s-1)}
+
+body[data-page="report"] section{margin-top:72px}
+body[data-page="report"] h2{font-size:clamp(19px,2.4vw,23px);line-height:1.4;letter-spacing:-.35px;gap:10px}
+body[data-page="report"] h3{font-size:var(--fs-md);margin-top:36px;line-height:1.6}
+body[data-page="report"] p{margin-top:var(--s-3);line-height:1.9}
+body[data-page="report"] .sub{font-size:14px;margin-top:var(--s-2);line-height:1.7}
+
+body[data-page="report"] .eras{margin-top:var(--s-5)}
+body[data-page="report"] .era{padding:22px 0;gap:var(--s-5)}
+body[data-page="report"] .era .when{color:var(--dim2);font-size:var(--fs-2xs);letter-spacing:.5px}
+body[data-page="report"] .era .when b{color:var(--txt);font-size:17px;letter-spacing:-.3px}
+body[data-page="report"] .era .what b{font-size:15px;line-height:1.55}
+body[data-page="report"] .era .what span{font-size:14px;line-height:1.75;margin-top:var(--s-1);color:var(--dim)}
+
+body[data-page="report"] .tbl-wrap{margin-top:var(--s-5)}
+body[data-page="report"] table{font-size:14px}
+body[data-page="report"] th{padding:0 12px 10px;font-size:var(--fs-2xs);letter-spacing:1.1px}
+body[data-page="report"] td{padding:13px 12px;line-height:1.7}
+
+body[data-page="report"] .roles{margin-top:var(--s-5);gap:var(--s-3)}
+body[data-page="report"] .role{padding:20px 22px;border-radius:0 var(--r-md) var(--r-md) 0}
+body[data-page="report"] .role p{font-size:14px;line-height:1.78;margin-top:var(--s-2)}
+body[data-page="report"] .role .ev{font-size:var(--fs-xs);line-height:1.7;margin-top:var(--s-3);padding-top:10px}
+
+body[data-page="report"] .asym{margin-top:var(--s-5);padding:26px;border-radius:var(--r-lg)}
+body[data-page="report"] .asym .row{padding:12px 0}
+body[data-page="report"] .asym .note{margin-top:var(--s-4);padding-top:var(--s-4);font-size:14px;line-height:1.8}
+
+body[data-page="report"] .layers{margin-top:var(--s-5);gap:var(--s-4)}
+body[data-page="report"] .layer{padding:24px;border-radius:var(--r-lg)}
+body[data-page="report"] .layer h4{margin-top:var(--s-4);font-size:var(--fs-2xs);letter-spacing:var(--ls-caps)}
+body[data-page="report"] .layer li{font-size:14px;line-height:1.8;margin-top:6px}
+
+body[data-page="report"] .map{margin-top:var(--s-5);border-radius:var(--r-md)}
+body[data-page="report"] .mrow>div{padding:16px 18px}
+body[data-page="report"] .mrow .left,body[data-page="report"] .mrow .right{font-size:14px;line-height:1.75}
+
+body[data-page="report"] .quote{margin-top:var(--s-7);padding:26px 28px;border-radius:0 var(--r-md) var(--r-md) 0}
+body[data-page="report"] .quote p{font-size:17px;line-height:1.8}
+
+body[data-page="report"] .cta{margin-top:var(--s-7);padding:28px;border-radius:var(--r-lg)}
+body[data-page="report"] .cta b{font-size:var(--fs-md);margin-bottom:var(--s-2)}
+body[data-page="report"] .cta span{font-size:14px;line-height:1.7}
+body[data-page="report"] .cta a{height:var(--h-ctl);display:inline-flex;align-items:center;margin-top:var(--s-4);
+  border-radius:var(--r-sm);font-size:14px}
+body[data-page="report"] footer{margin-top:var(--s-8);padding-top:var(--s-5);
+  font-size:var(--fs-xs);line-height:1.95}
+
+@media(max-width:720px){
+  body[data-page="report"]{font-size:14.8px;line-height:1.82;padding:0 18px 80px}
+  body[data-page="report"] .hero{padding:36px 0 4px}
+  body[data-page="report"] .hero h1{font-size:25px;letter-spacing:-.4px;line-height:var(--lh-tight)}
+  body[data-page="report"] .lede{font-size:15px;line-height:1.8}
+  body[data-page="report"] .nums{margin-top:var(--s-5)}
+  body[data-page="report"] .num{padding:16px 14px}
+  body[data-page="report"] .num .n{font-size:var(--fs-xl)}
+  body[data-page="report"] section{margin-top:56px}
+  body[data-page="report"] h2{font-size:20px}
+  body[data-page="report"] p{line-height:1.85}
+  body[data-page="report"] .era{padding:18px 0}
+  body[data-page="report"] .asym{padding:18px}
+  body[data-page="report"] .layer{padding:20px 18px}
+  body[data-page="report"] .quote{padding:20px 18px}
+  body[data-page="report"] .quote p{font-size:15.5px}
+  body[data-page="report"] .cta{padding:22px 18px}
+  body[data-page="report"] footer{margin-top:var(--s-7)}
+}
+
+/* ---------- 4D. 页型 incidents：攻击事件档案 ----------
+   这一页有自己的光学校式与玻璃层级，通用排版规则不得覆盖。
+   这里只做两件事：统一令牌（颜色/字体已由上面的 :root 接管）＋ 让顶栏多按钮不吃亏。 */
+body[data-page="incidents"]{background-color:var(--bg)}
+body[data-page="incidents"] .nav-in{gap:var(--s-2)}
+body[data-page="incidents"] .pill{height:var(--h-pill);font-size:var(--fs-xs)}
+body[data-page="incidents"] .brand span{letter-spacing:var(--ls-caps)}
+@media(max-width:720px){
+  /* 窄屏只留语言开关，返回按钮收成图标宽度，避免三个元素挤掉品牌名 */
+  body[data-page="incidents"] .nav-in{gap:6px}
+  body[data-page="incidents"] .pill{padding:0 10px;font-size:var(--fs-2xs)}
+}
+
+/* ---------- 4E. 品牌标记 ----------
+   替换掉原来「方框套方块」的 CSS 画法：那个标记没有任何含义，两个同心直角方框
+   在 24px 下也看不出结构。改成盾牌 + 对勾，尺寸统一 26px（原来 24/26 混用）。 */
+svg.logo{
+  width:26px;height:26px;flex:0 0 auto;display:block;
+  border:0;border-radius:0;background:none;overflow:visible;
+}
+/* 旧页面用伪元素画的内方块，换成 svg 后必须彻底关掉 */
+svg.logo::before,svg.logo::after{content:none!important;display:none!important}
+
+/* ---------- 4F. 语言切换：档案页顶栏唯一的跨语言入口 ----------
+   EN 两个字母太容易看成装饰，被当成「没有英文版」。这里给它实心色描边 +
+   图标 + 完整语种名，权重高于旁边的普通胶囊，但仍是次要动作，不抢主 CTA。 */
+a.lang-sw{
+  display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;
+  height:var(--h-pill);padding:0 12px 0 10px;border-radius:var(--pill);
+  font-size:var(--fs-xs);font-weight:500;letter-spacing:-.05px;
+  color:var(--accent);text-decoration:none;white-space:nowrap;
+  border:1px solid rgba(10,132,255,.45);                            /* 老浏览器兜底 */
+  border-color:color-mix(in srgb,var(--accent) 45%,transparent);
+  background:rgb(10 132 255 / .10);                                 /* 老浏览器兜底 */
+  background:color-mix(in srgb,var(--accent) 10%,transparent);
+  transition:transform .45s var(--spring-pop),color .2s,background .2s,border-color .2s;
+}
+a.lang-sw svg{width:13px;height:13px;flex:0 0 auto;opacity:.85;transition:opacity .2s}
+a.lang-sw:hover{color:#fff;border-color:transparent;background:var(--accent)}
+a.lang-sw:hover svg{opacity:1}
+a.lang-sw:active{transform:scale(.955)}
+a.lang-sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:720px){
+  /* 窄屏腾位置：品牌副标题让位给完整语种名，品牌主轴本身不动 */
+  body[data-page="incidents"] .brand span{display:none}
+  a.lang-sw{padding:0 10px 0 8px;gap:5px;font-size:var(--fs-2xs);min-height:32px}
+}
+
+/* ---------- 5. 小屏触摸友好 ---------- */
+@media(max-width:720px){
+  body[data-page] button,body[data-page] a.lang,body[data-page] a.zh,
+  body[data-page] a.back,body[data-page] a.pill{min-height:32px}
+}
+
+/* ---------- 6. 无障碍 ---------- */
+/* 减弱动效：只保留必要的状态切换，不做位移动画 */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;
+  }
+  .btn-main:active,.btn:active,.btn-ghost:active,.go:active,
+  .revoke:active,.fbtn:active,.chip:active,.pill:active{transform:none}
+}
+/* 提高对比度：线更实、弱化文字提亮 */
+@media(prefers-contrast:more){
+  :root{
+    --line:rgba(255,255,255,.22);
+    --line-2:rgba(255,255,255,.34);
+    --dim:#c3c9d4;
+    --dim2:#9aa1b1;
+  }
+}
+/* 浅色系统偏好下不做反转，仅提示浏览器控件用深色 */
+@media(prefers-color-scheme:light){
+  :root{color-scheme:dark}
+}
+
+/*UI-POLISH-END*/
+</style>
+</head>
+<body data-page="scan">
+<div class="wrap">
+  <header>
+    <div class="head-left">
+      <svg class="logo" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><defs><linearGradient id="agMark" x1="3" y1="2" x2="23" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#0a84ff"/></linearGradient></defs><path d="M13 2.4 21.8 5.6v7.2c0 4.8-3.6 8.7-8.8 10.8-5.2-2.1-8.8-6-8.8-10.8V5.6Z" fill="url(#agMark)" fill-opacity=".12" stroke="url(#agMark)" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.6 13.2l2.9 2.9 5.9-6.1" fill="none" stroke="url(#agMark)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="brand">ApproveGuard<span>WALLET CHECK</span></div>
+    </div>
+    <div class="head-right">
+      <a class="lang" href="past-attacks-en.html">Past attacks</a>
+      <a class="lang-sw" href="index.html" hreflang="zh-Hans" aria-label="Read this page in Chinese"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg><span>Chinese</span></a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Wallet approval scanner</div>
+    <h1>Your wallet is still holding <em>a spare key</em> for a stranger.</h1>
+    <p>30-second check: scan every token and NFT approval you have signed on Ethereum, BNB Chain, Arbitrum, Polygon and Base. You get one number — how much of your money could be moved out right now, and how long ago you signed the oldest one. Read-only. No private keys. Nothing uploaded.</p>
+  </section>
+
+  <div class="scanbox">
+    <div class="field">
+      <input type="text" id="addr" placeholder="Wallet address 0x..." spellcheck="false" autocomplete="off">
+      <button class="btn-main" id="go">Start check</button>
+    </div>
+    <button class="pickw" id="pickWallet" type="button" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="M2.5 9.8h19"/><circle cx="17.2" cy="14.4" r="1.35" fill="currentColor" stroke="none"/></svg>
+      <span class="wt">Detecting browser wallet…</span><span class="ws">read-only, no transactions</span>
+    </button>
+    <div class="chainrow">
+      <div class="chains" id="chains"></div>
+      <div class="hint" id="hint">5 chains in parallel · tokens + NFTs · amounts and dates · no signup</div>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spin"></div>
+    <div id="loadtxt">Scanning onchain approvals…</div>
+  </div>
+
+  <div id="result"></div>
+
+  <footer>
+    Approval risk data by GoPlus Security; prices from Gate.io / Binance public market data.<br>
+    ERC-20 approvals are covered on all 5 chains; NFT approvals (ERC-721 / ERC-1155) on Ethereum, BNB Chain, Arbitrum and Polygon — Base is not supported by the data provider yet.<br>
+    <b style="color:var(--high)">Permit2 and EIP-2612 off-chain signature approvals are not covered.</b> They are not written into the token allowance, so no public API can return them. If you have signed a "Permit" popup in a Uniswap-style app, it is not in this report — nothing outside your own wallet can see it right now.<br>
+    The dollar figure only counts tokens with a public price. Tokens without one are listed separately as unpriced, so the real exposure is a floor, never a ceiling.<br>
+    Risk levels combine third-party contract labels, allowance scope, current balance and approval age. Advisory only — not investment advice, not a security guarantee.<br>
+    Revocation is signed by your own wallet. This page never touches any signing material.<br>
+    <a href="en.html#limits">What this check cannot tell you →</a>
+    <br><a href="past-attacks-en.html">Why approval age is part of the risk → past attacks, 13 cases</a>
+  </footer>
+</div>
+
+<div class="modal-bg" id="mbg">
+  <div class="modal">
+    <h3 id="mtitle">Confirm revocation</h3>
+    <p id="mbody"></p>
+    <p style="color:var(--dim2);font-size:12px;margin-top:12px">Revoking sets the allowance to zero and costs one gas fee. Check the contract address in your wallet before you sign.</p>
+    <div class="acts">
+      <button class="btn-ghost" id="mcancel">Cancel</button>
+      <button class="btn-danger" id="mok">Confirm revoke</button>
+    </div>
+  </div>
+</div>
+
+<div class="card-bg" id="cardbg">
+  <div class="card-box">
+    <img id="cardimg" alt="Wallet risk check card">
+    <div class="card-acts">
+      <button class="btn-accent" id="carddl">Download image</button>
+      <button class="btn-ghost" id="cardcp">Copy image</button>
+      <button class="btn-ghost" id="cardclose">Close</button>
+    </div>
+    <div class="card-tip">The card shows the first 6 and last 4 characters of the address — public onchain data.<br>On mobile, long-press the image to save it.</div>
+  </div>
+</div>
+
+<div class="modal-bg" id="qbg">
+  <div class="modal">
+    <h3 id="qmtitle">Revoke one by one</h3>
+    <p id="qmsub"></p>
+    <div class="qmlist" id="qmlist"></div>
+    <p style="color:var(--dim2);font-size:12px;margin-top:12px">Each one needs your own confirmation in your wallet — nothing can sign on your behalf. You can stop at any point; whatever already landed onchain stays revoked.</p>
+    <div class="acts">
+      <button class="btn-ghost" id="qmcancel">Cancel</button>
+      <button class="btn-danger" id="qmstart">Start</button>
+    </div>
+  </div>
+</div>
+
+<div class="qp" id="why">
+  <div class="qt"><span>Why is this one risky?</span><small style="cursor:pointer" id="whyclose">Close ✕</small></div>
+  <div class="qs" id="whybody"></div>
+</div>
+
+<div class="qp" id="qp">
+  <div class="qt"><span id="qtitle">Revoking one by one</span><small id="qcount">0 / 0</small></div>
+  <div class="qbar"><i id="qbar"></i></div>
+  <div class="qs" id="qsub">Preparing…</div>
+  <div class="qacts">
+    <button class="btn-ghost" id="qstop">Stop</button>
+    <button class="btn-accent" id="qdone" style="display:none">Rescan to confirm</button>
+  </div>
+</div>
+
+<script src="config.js" onerror="window.APPROVE_GUARD=window.APPROVE_GUARD||{}"></script>
+<script>
+const CHAINS = [
+  {id:1,     name:'Ethereum', short:'ETH',  color:'#8a92b2', hex:'0x1',    nft:true},
+  {id:56,    name:'BNB Chain',short:'BSC',  color:'#f0b90b', hex:'0x38',   nft:true},
+  {id:42161, name:'Arbitrum', short:'ARB',  color:'#28a0f0', hex:'0xa4b1', nft:true},
+  {id:137,   name:'Polygon',  short:'POL',  color:'#a06be0', hex:'0x89',   nft:true},
+  {id:8453,  name:'Base',     short:'BASE', color:'#4a7dff', hex:'0x2105', nft:false}
+];
+const CFG = window.APPROVE_GUARD || {};
+const PROXY = String(CFG.proxyBase || '').replace(/\/+$/, '');
+const API = PROXY ? PROXY + '/api/v2/' : 'https://api.gopluslabs.io/api/v2/';
+const AUTH = CFG.goplusAccessToken ? { Authorization: CFG.goplusAccessToken } : {};
+const EP = { token:'token_approval_security', nft721:'nft721_approval_security', nft1155:'nft1155_approval_security' };
+const SEL = { approve:'0x095ea7b3', setForAll:'0xa22cb465' };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short = a => a ? a.slice(0,6) + '…' + a.slice(-4) : '';
+const assetOf = r => r.kind === 'erc20' ? r.token.token_address : r.token.nft_address;
+const rowKey = r => [
+  r.kind, r.chain.id,
+  String(assetOf(r)).toLowerCase(),
+  String(r.ap.approved_contract).toLowerCase(),
+  r.ap.approved_token_id == null ? '' : r.ap.approved_token_id
+].join('|');
+
+const UNKNOWN = 'Unlabelled contract';
+
+/* ---------- price layer ---------- */
+const STABLE = new Set(['USDT','USDC','DAI','BUSD','TUSD','FDUSD','USDD','USDP','GUSD','LUSD','FRAX','PYUSD','USDBC','USDE','CRVUSD','GHO','USDS','USDB','SUSD']);
+const ALIAS = { WETH:'ETH', WBTC:'BTC', STETH:'ETH', WSTETH:'ETH', BETH:'ETH', CBETH:'ETH', RETH:'ETH', EZETH:'ETH',
+                MATIC:'POL', WMATIC:'POL', BNB:'BNB', WBNB:'BNB' };
+const PRICE_CACHE = new Map();
+const priceKey = s => { const u = String(s || '').toUpperCase(); return ALIAS[u] || u; };
+
+async function priceOne(sym){
+  const s = priceKey(sym);
+  if(!s) return null;
+  if(STABLE.has(s)) return 1;
+  if(!/^[A-Z0-9]{2,15}$/.test(s)) return null;
+  if(PRICE_CACHE.has(s)) return PRICE_CACHE.get(s);
+
+  const fromGate = fetch('https://api.gateio.ws/api/v4/spot/tickers?currency_pair=' + s + '_USDT',
+      {signal: AbortSignal.timeout(4000)})
+    .then(r => r.ok ? r.json() : null)
+    .then(j => (Array.isArray(j) && j[0] && j[0].last) ? Number(j[0].last) : null)
+    .catch(() => null);
+
+  const fromBinance = fetch('https://data-api.binance.vision/api/v3/ticker/price?symbol=' + s + 'USDT',
+      {signal: AbortSignal.timeout(4000)})
+    .then(r => r.ok ? r.json() : null)
+    .then(j => (j && j.price) ? Number(j.price) : null)
+    .catch(() => null);
+
+  const res = await Promise.all([fromGate, fromBinance]);
+  let p = null;
+  for(const v of res){ if(typeof v === 'number' && isFinite(v) && v > 0){ p = v; break; } }
+
+  PRICE_CACHE.set(s, p);
+  return p;
+}
+
+async function loadPrices(syms, deadlineMs){
+  const budget = deadlineMs || 12000;
+  const uniq = [...new Set(syms.map(priceKey).filter(Boolean))];
+  const q = uniq.slice();
+  const out = {};
+  const end = Date.now() + budget;
+  const worker = async () => {
+    while(q.length && Date.now() < end){
+      const s = q.shift();
+      out[s] = await priceOne(s);
+    }
+  };
+  await Promise.all(Array.from({length:10}, worker));
+  return out;
+}
+
+/* stablecoins return 1 inside priceOne and never reach the cache, so PRICE_CACHE alone is not enough */
+function priceOf(sym){
+  const k = priceKey(sym);
+  if(!k) return null;
+  if(STABLE.has(k)) return 1;
+  const p = PRICE_CACHE.get(k);
+  return (typeof p === 'number' && isFinite(p) && p > 0) ? p : null;
+}
+
+/* ---------- helpers ---------- */
+function fmtUsd(n){
+  if(!isFinite(n) || n <= 0) return '$0';
+  if(n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if(n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if(n >= 1e5) return '$' + (n/1e3).toFixed(0) + 'K';
+  if(n >= 1e3) return '$' + n.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(n >= 1) return '$' + n.toFixed(2);
+  return '$' + n.toPrecision(2);
+}
+
+function fmtBal(b){
+  const n = Number(b || 0);
+  if(!isFinite(n) || n === 0) return '0';
+  if(n >= 1e15) return '>1P';
+  if(n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+  if(n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if(n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if(n >= 1e3) return (n/1e3).toFixed(2) + 'K';
+  if(n < 0.0001) return n.toExponential(2);
+  return n.toFixed(4).replace(/0+$/,'').replace(/\.$/,'');
+}
+
+function parseAmt(a){
+  if(a === 'Unlimited') return Infinity;
+  const n = Number(a);
+  return isFinite(n) ? n : 0;
+}
+
+function isUnlimited(a){ return a === 'Unlimited' || parseAmt(a) > 1e15; }
+
+function fmtAmt(a){
+  if(isUnlimited(a)) return '∞';
+  return fmtBal(Number(a));
+}
+
+function ageDays(ts){
+  if(!ts) return null;
+  const t = Number(ts);
+  if(!isFinite(t) || t <= 0) return null;
+  const d = (Date.now()/1000 - t) / 86400;
+  if(!isFinite(d) || d < 0) return null;
+  return d;
+}
+
+function pl(n, one, many){ return n + ' ' + (n === 1 ? one : many); }
+
+function ageText(d){
+  if(d == null) return 'unknown';
+  if(d < 1) return 'today';
+  if(d < 30) return pl(Math.floor(d), 'day', 'days') + ' ago';
+  if(d < 365) return pl(Math.floor(d/30), 'month', 'months') + ' ago';
+  const y = Math.floor(d/365), m = Math.floor((d % 365)/30);
+  return pl(y, 'year', 'years') + (m ? ' ' + pl(m, 'month', 'months') : '') + ' ago';
+}
+
+function ageShort(d){
+  if(d == null) return '';
+  if(d < 1) return 'today';
+  if(d < 30) return Math.floor(d) + 'd';
+  if(d < 365) return Math.floor(d/30) + 'mo';
+  return (d/365).toFixed(1).replace(/\.0$/,'') + 'y';
+}
+
+/* ---------- risk scoring ---------- */
+function riskOf(row){
+  const a = row.token, ap = row.ap, info = ap.address_info || {};
+  const kind = row.kind;
+  const riskBad = Number(a.malicious_address) === 1 || (a.malicious_behavior || []).length > 0
+               || Number(info.doubt_list) === 1 || (info.malicious_behavior || []).length > 0;
+  const trusted = Number(info.trust_list) === 1;
+
+  if(riskBad){
+    return {level:'critical', label:'Malicious', cls:'b-crit', scope:'bad',
+      why: Number(a.malicious_address) === 1 || (a.malicious_behavior || []).length > 0
+        ? 'The contract itself is flagged as malicious. This approval can be used at any moment.'
+        : 'The approved contract is on a suspicious list.'};
+  }
+
+  if(kind === 'erc20'){
+    const bal = Number(a.balance || 0);
+    const unlimited = isUnlimited(ap.approved_amount);
+    const old = (row.age || 0) > 365 * 2;
+    if(trusted && unlimited && bal <= 0)
+      return {level:'low', label:'Trusted', cls:'b-trust', scope:'unlimited',
+        why:'On GoPlus\' trusted list — an unlimited allowance is how this contract normally works.'};
+    if(unlimited && bal > 0 && old)
+      return {level:'high', label:'Unlimited + old', cls:'b-high', scope:'unlimited',
+        why:'Unlimited allowance, live balance, signed more than two years ago — the classic "approved and forgot" combination.'};
+    if(unlimited && bal > 0)
+      return {level:'high', label:'Unlimited + funded', cls:'b-high', scope:'unlimited',
+        why:'Unlimited allowance on a balance you actually hold. One malicious call takes all of it.'};
+    if(unlimited)
+      return {level:'medium', label:'Unlimited', cls:'b-med', scope:'unlimited',
+        why:'Unlimited allowance but nothing to take right now. The exposure starts the moment you deposit.'};
+    if(bal > 0)
+      return {level:'medium', label:'Capped', cls:'b-med', scope:'limited',
+        why:'Allowance is capped — your maximum loss is limited to that number.'};
+    return {level:'low', label:'Low risk', cls:'b-ok', scope:'limited',
+      why:'Capped and unfunded. Very little to take.'};
+  }
+
+  const forAll = kind === 'erc1155' ? true : Number(ap.approved_for_all) === 1;
+  if(forAll && trusted)
+    return {level:'low', label:'Trusted', cls:'b-trust', scope:'unlimited',
+      why:'Whole-collection approval, but the contract is on GoPlus\' trusted list (common for official marketplaces).'};
+  if(forAll)
+    return {level:'high', label:'All-collection', cls:'b-high', scope:'unlimited',
+      why:'Every NFT in this collection is controlled by this contract. Any one you hold can be moved.'};
+  return {level:'medium', label:'Single NFT', cls:'b-med', scope:'limited',
+      why:'Only this one tokenId is approved. Exposure is limited to a single NFT.'};
+}
+
+/* ---------- fetch ---------- */
+/* ---------- cache: same address within 10 minutes never hits the API twice ---------- */
+const CK_TTL = 10 * 60 * 1000;
+function cacheGet(k){
+  try{
+    const v = sessionStorage.getItem(k);
+    if(!v) return null;
+    const o = JSON.parse(v);
+    if(Date.now() - o.t > CK_TTL){ sessionStorage.removeItem(k); return null; }
+    return o.d;
+  }catch(e){ return null; }
+}
+function cacheSet(k, d){
+  try{
+    const s = JSON.stringify({t:Date.now(), d});
+    if(s.length < 300000) sessionStorage.setItem(k, s);
+  }catch(e){}
+}
+/* after a revocation the cache has to go, otherwise a rescan shows the old state */
+function bustCache(addr){
+  try{
+    const suf = String(addr).toLowerCase();
+    Object.keys(sessionStorage).forEach(k => {
+      if(k.indexOf('ag2:') === 0 && k.slice(-suf.length) === suf) sessionStorage.removeItem(k);
+    });
+  }catch(e){}
+}
+
+let RATE_LIMITED = false;
+
+async function fetchKind(chain, addr, kind){
+  const ck = 'ag2:' + chain.id + ':' + kind + ':' + addr.toLowerCase();
+  const cached = cacheGet(ck);
+  if(cached) return cached;
+
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 22000);
+  try{
+    const url = API + EP[kind] + '/' + chain.id + '?addresses=' + encodeURIComponent(addr);
+    const r = await fetch(url, {signal: ctrl.signal, headers: AUTH});
+    if(r.status === 429){ RATE_LIMITED = true; throw new Error('API rate limited'); }
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    if(j.code !== 1 && j.code !== 2){
+      const msg = String(j.message || 'Unexpected API response');
+      if(/rate|limit|frequen|too many|429/i.test(msg)) RATE_LIMITED = true;
+      throw new Error(msg);
+    }
+    const type = kind === 'token' ? 'erc20' : (kind === 'nft721' ? 'erc721' : 'erc1155');
+    const out = [];
+    (j.result || []).forEach(asset => {
+      (asset.approved_list || []).forEach(ap => {
+        out.push({chain, kind: type, token: asset, ap});
+      });
+    });
+    cacheSet(ck, out);
+    return out;
+  } finally { clearTimeout(t); }
+}
+
+async function scanChain(chain, addr){
+  const kinds = chain.nft ? ['token', 'nft721', 'nft1155'] : ['token'];
+  // one retry: with three calls in flight the shared quota sometimes rejects them; a retry recovers most
+  const once = () => Promise.allSettled(kinds.map(k => fetchKind(chain, addr, k)));
+  let res = await once();
+  if(res.every(s => s.status === 'rejected')){
+    await new Promise(r => setTimeout(r, 700));
+    res = await once();
+  }
+  const rows = [];
+  let ok = false;
+  res.forEach(s => { if(s.status === 'fulfilled'){ ok = true; rows.push(...s.value); } });
+  if(!ok) throw new Error('chain failed');
+  return rows;
+}
+
+/* ---------- exposure ---------- */
+function computeExposure(rows, prices){
+  const map = new Map();
+  rows.forEach(r => {
+    if(r.kind !== 'erc20') return;
+    const bal = Number(r.token.balance || 0);
+    if(!(bal > 0)) return;
+    const key = r.chain.id + ':' + r.token.token_address;
+    const allow = parseAmt(r.ap.approved_amount);
+    const reach = allow === Infinity ? bal : Math.min(bal, allow);
+    const cur = map.get(key);
+    if(!cur){
+      const s = priceKey(r.token.token_symbol);
+      map.set(key, {
+        sym: r.token.token_symbol || '?',
+        chain: r.chain,
+        bal,
+        reach,
+        price: prices[s] == null ? null : prices[s],
+        name: r.token.token_name || ''
+      });
+    }else if(reach > cur.reach){
+      cur.reach = reach;
+    }
+  });
+
+  let usd = 0, priced = 0, unpricedCount = 0, unpricedRows = [];
+  map.forEach(v => {
+    if(v.price){
+      v.usd = v.reach * v.price;
+      usd += v.usd; priced++;
+    }else{
+      unpricedCount++;
+      unpricedRows.push(v);
+    }
+  });
+  const top = [...map.values()].filter(v => v.price).sort((a,b) => b.usd - a.usd).slice(0,3);
+  return {usd, priced, unpricedCount, unpricedRows, top, total: map.size};
+}
+
+/* ---------- main flow ---------- */
+async function scan(addr){
+  const btn = $('go');
+  try{ localStorage.setItem('ag:last', addr); }catch(e){}
+  btn.disabled = true; showErr('');
+  $('result').innerHTML = '';
+  $('loading').style.display = 'block';
+  $('loadtxt').textContent = 'Scanning ' + CHAINS.length + ' chains in parallel…';
+
+  const settled = await Promise.allSettled(CHAINS.map(c => scanChain(c, addr)));
+
+  const rows = [];
+  const failed = [];
+  settled.forEach((s, i) => {
+    if(s.status === 'fulfilled') rows.push(...s.value);
+    else failed.push(CHAINS[i].short);
+  });
+
+  if(failed.length === CHAINS.length){
+    $('loading').style.display = 'none';
+    btn.disabled = false;
+    showErr(RATE_LIMITED
+      ? 'The data API is rate limiting us right now (too many parallel queries). Give it a minute and try again — this is not a problem with your wallet.'
+      : 'Every chain failed to scan. Check your connection and retry.');
+    return;
+  }
+  if(failed.length) showErr((RATE_LIMITED ? 'Some chains were rate limited: ' : 'Some chains failed to scan: ') + failed.join(', ') + '. Everything else is shown normally.');
+
+  rows.forEach(r => {
+    r.age = ageDays(r.ap.initial_approval_time || r.ap.approved_time);
+  });
+
+  $('loadtxt').textContent = 'Pricing assets and computing exposure…';
+  const syms = rows.filter(r => r.kind === 'erc20' && Number(r.token.balance || 0) > 0)
+                   .map(r => r.token.token_symbol);
+  let prices = {};
+  try{ prices = await loadPrices(syms); }catch(e){ prices = {}; }
+
+  $('loading').style.display = 'none';
+  btn.disabled = false;
+
+  render(rows, addr, prices);
+}
+
+let STATE = { rows:[], addr:'', filter:'all', exp:null };
+
+function render(rows, addr, prices){
+  const exp = computeExposure(rows, prices);
+  rows.forEach(r => { r.risk = riskOf(r); });
+
+  const order = {critical:0, high:1, medium:2, low:3};
+  rows.sort((a,b) => {
+    const d = order[a.risk.level] - order[b.risk.level];
+    if(d) return d;
+    return Number(b.token.balance || 0) - Number(a.token.balance || 0);
+  });
+
+  STATE = { rows, addr, filter:'all', exp };
+
+  const nTok = new Set(rows.filter(r => r.kind === 'erc20').map(r => r.chain.id + ':' + r.token.token_address)).size;
+  const nNft = new Set(rows.filter(r => r.kind !== 'erc20').map(r => r.chain.id + ':' + r.token.nft_address)).size;
+  const nApp = rows.length;
+  const nUnl = rows.filter(r => r.risk.scope === 'unlimited').length;
+  const nBad = rows.filter(r => r.risk.level === 'critical' || r.risk.level === 'high').length;
+
+  const aged = rows.filter(r => r.age != null);
+  const oldest = aged.length ? aged.reduce((a,b) => a.age >= b.age ? a : b) : null;
+
+  const buckets = [0,0,0,0];
+  aged.forEach(r => {
+    if(r.age < 30) buckets[0]++;
+    else if(r.age < 365) buckets[1]++;
+    else if(r.age < 365*3) buckets[2]++;
+    else buckets[3]++;
+  });
+
+  const usdTxt = exp.usd > 0 ? fmtUsd(exp.usd) : '$0';
+  const clean = exp.usd <= 0 && nBad === 0;
+  const histHtml = rows.length ? histLine(addr, rows) : '';
+
+  let html = `<div class="report${clean ? ' clean' : (exp.usd <= 0 ? ' zero' : '')}">
+    <div class="rp-label">Your exposure · priced assets</div>
+    <div class="rp-num">${esc(usdTxt)}</div>
+    <div class="rp-cap">${exp.usd > 0
+      ? 'This is money any one of those contracts can move out, in a single transaction, whenever it decides to.'
+      : (exp.unpricedCount
+          ? 'Nothing here has a public price, so the exposure cannot be put into dollars — it is still live.'
+          : 'No balance sitting under an approval right now. The approvals themselves are still open.')}</div>
+    ${exp.unpricedCount ? `<div class="rp-note">Plus ${exp.unpricedCount} token${exp.unpricedCount === 1 ? '' : 's'} with a balance but no public price (${esc(exp.unpricedRows.slice(0,6).map(v => v.sym).join(', '))}${exp.unpricedCount > 6 ? ' and more' : ''}) — not counted, so the real exposure is higher than this number.</div>` : ''}
+    <div class="rp-div"></div>
+    <div class="rp-grid">
+      <div class="rp-cell"><div class="k">Oldest approval</div>
+        <div class="v">${oldest ? esc(ageText(oldest.age)) : '—'}</div></div>
+      <div class="rp-cell"><div class="k">Signed to</div>
+        <div class="v ell" title="${oldest ? esc((oldest.ap.address_info || {}).contract_name || UNKNOWN) : ''}">${oldest ? esc((oldest.ap.address_info || {}).contract_name || UNKNOWN) : '—'}</div></div>
+      <div class="rp-cell"><div class="k">Open approvals</div>
+        <div class="v">${nApp} <small>live</small></div></div>
+      <div class="rp-cell"><div class="k">Unlimited / all-collection</div>
+        <div class="v" style="color:var(--high)">${nUnl} <small>live</small></div></div>
+      <div class="rp-cell"><div class="k">High-risk / malicious</div>
+        <div class="v" style="color:var(--crit)">${nBad} <small>flagged</small></div></div>
+      <div class="rp-cell"><div class="k">Assets involved</div>
+        <div class="v">${nTok} <small>${nTok === 1 ? 'token' : 'tokens'}</small> · ${nNft} <small>${nNft === 1 ? 'NFT set' : 'NFT sets'}</small></div></div>
+    </div>`;
+
+  if(aged.length){
+    const total = buckets.reduce((a,b) => a+b, 0) || 1;
+    const cols = ['#4ade80','#4a9eff','#ff9f43','#ff4d4f'];
+    html += `<div class="ages">
+      <div class="rp-label">Age of approvals</div>
+      <div class="bar">${buckets.map((c,i) => c ? `<i style="width:${(c/total*100).toFixed(1)}%;background:${cols[i]}"></i>` : '').join('')}</div>
+      <div class="lg">
+        <span><em style="background:${cols[0]}"></em>Last 30 days ${buckets[0]}</span>
+        <span><em style="background:${cols[1]}"></em>Under 1 year ${buckets[1]}</span>
+        <span><em style="background:${cols[2]}"></em>1–3 years ${buckets[2]}</span>
+        <span><em style="background:${cols[3]}"></em>3+ years ${buckets[3]}</span>
+      </div>
+    </div>`;
+  }
+
+  html += `<div class="concl">${conclusion(exp, oldest, nBad, nUnl, nApp, buckets)}</div>`;
+  if(histHtml) html += histHtml;
+  html += `<div class="share-row">
+      <button class="btn-accent" id="mkCard">Generate share card</button>
+      <button class="btn-ghost" id="cpLink">Copy link</button>
+      <button class="btn-ghost" id="cpPost">Copy post text</button>
+      <button class="btn-ghost" id="csvBtn">Export CSV</button>
+      <span class="share-ok" id="cpOk"></span>
+    </div>
+  </div>`;
+
+  if(!rows.length){
+    html += `<div class="empty" style="margin-top:22px">
+      <b>No open approvals found</b>
+      This address has no token or NFT approvals left on any of the 5 chains. It is clean right now.
+    </div>`;
+    $('result').innerHTML = html;
+    bindShare(addr, exp, oldest, nBad);
+    saveHist(addr, rows, 0, 0, exp.usd);
+    return;
+  }
+
+  const nOld = rows.filter(r => (r.age || 0) > 730).length;
+
+  let batch = '';
+  if(window.ethereum){
+    batch = `<div class="batch" id="batch"><span class="bl">Batch revoke:</span>`;
+    if(nBad) batch += `<button class="danger" data-mode="high">All high-risk (${nBad})</button>`;
+    if(nUnl) batch += `<button data-mode="unlimited">All unlimited (${nUnl})</button>`;
+    if(nOld) batch += `<button data-mode="old">2 years or older (${nOld})</button>`;
+    batch += `</div>`;
+  }
+
+  html += `<div class="sec-title">Approvals <span>highest risk first · ${esc(short(addr))}</span></div>
+  <div class="filters" id="filters">
+    <button class="fbtn on" data-f="all">All ${nApp}</button>
+    <button class="fbtn" data-f="high">High-risk ${nBad}</button>
+    <button class="fbtn" data-f="unlimited">Unlimited ${nUnl}</button>
+    <button class="fbtn" data-f="old">2y+</button>
+    <button class="fbtn" data-f="nft">NFT ${nNft}</button>
+  </div>
+  ${batch}
+  <div id="rows"></div>`;
+
+  $('result').innerHTML = html;
+
+  $('filters').addEventListener('click', e => {
+    const b = e.target.closest('.fbtn');
+    if(!b) return;
+    STATE.filter = b.dataset.f;
+    $('filters').querySelectorAll('.fbtn').forEach(x => x.classList.toggle('on', x === b));
+    drawList();
+  });
+
+  bindShare(addr, exp, oldest, nBad);
+  saveHist(addr, rows, nUnl, nBad, exp.usd);
+
+  const bEl = $('batch');
+  if(bEl) bEl.addEventListener('click', e => {
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    openQueue(b.dataset.mode);
+  });
+
+  drawList();
+}
+
+/* ---------- written conclusion ---------- */
+function conclusion(exp, oldest, nBad, nUnl, nApp, buckets){
+  const parts = [];
+
+  if(nApp === 0)
+    return 'This address has no open approvals. <b>Clean right now.</b> But the first DApp you touch leaves a new one — come back in a month and run this again.';
+
+  if(exp.usd > 0){
+    parts.push(`You have <b>${fmtUsd(exp.usd)}</b> sitting under permissions you already signed away.`);
+  }else if(exp.unpricedCount > 0){
+    parts.push(`Nothing here has a public price, so <b>the dollar figure cannot be estimated</b> — but the approvals are still live.`);
+  }else{
+    parts.push(`<b>There is no balance to take right now</b>, but the approvals are live. The moment you deposit, they are exposed.`);
+  }
+
+  if(oldest && oldest.age > 365 * 2){
+    const name = (oldest.ap.address_info || {}).contract_name || 'a contract you would not recognise';
+    parts.push(`The oldest was signed <b>${ageText(oldest.age)}</b> and handed to ${name} — you almost certainly forgot it.`);
+  }else if(oldest && oldest.age > 365){
+    parts.push(`The oldest has been sitting there for <b>over a year</b> without being revoked.`);
+  }
+
+  if(buckets[3] > 0 && (buckets[3] / Math.max(1, buckets.reduce((a,b)=>a+b,0))) > 0.3){
+    parts.push(`<b>${buckets[3]}</b> of them ${buckets[3] === 1 ? 'is' : 'are'} more than three years old, which is a large share.`);
+  }
+
+  if(nBad > 0){
+    parts.push(`<b>${nBad}</b> ${nBad === 1 ? 'sits' : 'sit'} on high-risk or malicious contracts — deal with ${nBad === 1 ? 'that one' : 'those'} first.`);
+  }else if(nUnl > 0){
+    parts.push(`<b>${nUnl}</b> ${nUnl === 1 ? 'is an' : 'are'} unlimited or whole-collection ${nUnl === 1 ? 'approval' : 'approvals'}, the entry point used in almost every drain.`);
+  }else{
+    parts.push(`No malicious contracts found. The risk here is scope and time.`);
+  }
+
+  return parts.join(' ');
+}
+
+/* ---------- CSV export ---------- */
+const KIND_LABEL = { erc20:'ERC-20', erc721:'ERC-721', erc1155:'ERC-1155' };
+
+function exportCsv(){
+  const rows = STATE.rows || [];
+  if(!rows.length){ showErr('Nothing to export.'); return; }
+  const head = ['Chain','Type','Asset','Balance','Spender','Spender address','Allowance','Approved on','Age','Risk','USD exposure'];
+  const q = v => {
+    const s = String(v == null ? '' : v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const out = [head.join(',')];
+
+  rows.forEach(r => {
+    const isNft = r.kind !== 'erc20';
+    const sym = isNft ? (r.token.nft_symbol || r.token.nft_name || 'NFT') : (r.token.token_symbol || '');
+    const forAll = isNft ? (r.kind === 'erc1155' ? true : Number(r.ap.approved_for_all) === 1) : false;
+    const amt = isNft ? (forAll ? 'All' : '#' + r.ap.approved_token_id)
+                      : (isUnlimited(r.ap.approved_amount) ? 'Unlimited' : fmtBal(Number(r.ap.approved_amount)));
+    const bal = isNft ? '' : fmtBal(r.token.balance);
+
+    const ts = Number(r.ap.initial_approval_time || r.ap.approved_time || 0);
+    const date = ts > 0 ? new Date(ts * 1000).toISOString().slice(0, 10) : '';
+
+    let usd = '';
+    if(!isNft){
+      const p = priceOf(sym);
+      const balN = Number(r.token.balance || 0);
+      const allow = parseAmt(r.ap.approved_amount);
+      const reach = allow === Infinity ? balN : Math.min(balN, allow);
+      if(p && reach > 0) usd = (reach * p).toFixed(2);
+    }
+
+    out.push([
+      r.chain.name, KIND_LABEL[r.kind] || r.kind, sym, bal,
+      (r.ap.address_info || {}).contract_name || '', r.ap.approved_contract,
+      amt, date, (r.age != null ? ageText(r.age) : ''), r.risk.label, usd
+    ].map(q).join(','));
+  });
+
+  const blob = new Blob(['\uFEFF' + out.join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'approveguard-' + (STATE.addr ? short(STATE.addr).replace('…','-') : 'report') + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ---------- sharing ---------- */
+function shareLink(addr){
+  try{
+    const u = new URL(location.href);
+    u.searchParams.set('addr', addr);
+    u.hash = '';
+    return u.href;
+  }catch(e){
+    return location.origin + location.pathname + '?addr=' + addr;
+  }
+}
+
+function postText(addr, exp, oldest, nBad){
+  const lines = [];
+  lines.push('Ran an approval check on my own wallet:');
+  if(exp.usd > 0){ lines.push(''); lines.push('· ' + fmtUsd(exp.usd) + ' can be moved out by contracts I approved'); }
+  if(oldest) lines.push('· oldest approval signed ' + ageText(oldest.age) + ', long forgotten');
+  if(nBad) lines.push('· ' + nBad + ' on high-risk or malicious contracts');
+  lines.push('');
+  lines.push('Approvals do not expire. They just get forgotten.');
+  lines.push(shareLink(addr));
+  return lines.join('\n');
+}
+
+function bindShare(addr, exp, oldest, nBad){
+  const ok = $('cpOk');
+  const flash = msg => { if(!ok) return; ok.textContent = msg; setTimeout(() => { ok.textContent = ''; }, 2200); };
+
+  const copy = async (text, msg) => {
+    try{
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text);
+      }else{
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      flash(msg);
+    }catch(e){ flash('Copy failed — select it manually'); }
+  };
+
+  const bl = $('cpLink'), bp = $('cpPost'), mk = $('mkCard'), cb = $('csvBtn');
+  if(mk) mk.addEventListener('click', openCard);
+  if(cb) cb.addEventListener('click', exportCsv);
+  if(bl) bl.addEventListener('click', () => copy(shareLink(addr), 'Link copied'));
+  if(bp) bp.addEventListener('click', () => copy(postText(addr, exp, oldest, nBad), 'Text copied'));
+}
+
+/* ---------- share card ---------- */
+const CARD = { blob:null, url:'' };
+
+function cardData(){
+  const rows = STATE.rows || [];
+  const exp = STATE.exp || {usd:0, unpricedCount:0, unpricedRows:[]};
+  const nApp = rows.length;
+  const nUnl = rows.filter(r => r.risk && r.risk.scope === 'unlimited').length;
+  const nBad = rows.filter(r => r.risk && (r.risk.level === 'critical' || r.risk.level === 'high')).length;
+  const aged = rows.filter(r => r.age != null);
+  const oldest = aged.length ? aged.reduce((a,b) => a.age >= b.age ? a : b) : null;
+  const nTok = new Set(rows.filter(r => r.kind === 'erc20').map(r => r.chain.id + ':' + r.token.token_address)).size;
+  const nNft = new Set(rows.filter(r => r.kind !== 'erc20').map(r => r.chain.id + ':' + r.token.nft_address)).size;
+  return {exp, nApp, nUnl, nBad, oldest, nTok, nNft};
+}
+
+function rr(g, x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+
+/* At this size a monospace "." takes a full character cell and the number looks loose,
+   so glyphs are laid out one by one and the decimal point is drawn as a real dot */
+function drawTight(g, txt, x, y, font, color, size){
+  g.font = font; g.fillStyle = color;
+  const r = Math.max(2, size * 0.055);
+  let cx = x;
+  for(const ch of txt){
+    if(ch === '.'){
+      g.beginPath();
+      g.arc(cx + r * 1.1, y - r * 1.15, r, 0, Math.PI * 2);
+      g.fill();
+      cx += r * 2.6;
+      continue;
+    }
+    const w = g.measureText(ch).width;
+    g.fillText(ch, cx, y);
+    cx += w;
+  }
+  return cx - x;
+}
+
+function drawCard(){
+  const d = cardData();
+  const addr = STATE.addr || '';
+  const W = 1200, H = 630, S = 2;
+  const cv = document.createElement('canvas');
+  cv.width = W * S; cv.height = H * S;
+  const g = cv.getContext('2d');
+  g.scale(S, S);
+
+  const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace';
+  const SANS = '-apple-system, "Segoe UI", Inter, Helvetica, Arial, sans-serif';
+
+  // background
+  const bg = g.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0a0b10');
+  bg.addColorStop(.55, '#0d0f15');
+  bg.addColorStop(1, '#13161f');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+
+  // top-left red glow
+  const glow = g.createRadialGradient(150, 30, 0, 150, 30, 700);
+  glow.addColorStop(0, 'rgba(255,77,79,.22)');
+  glow.addColorStop(1, 'rgba(255,77,79,0)');
+  g.fillStyle = glow; g.fillRect(0, 0, W, H);
+
+  // grid
+  g.strokeStyle = 'rgba(255,255,255,.026)'; g.lineWidth = 1;
+  for(let x = 40; x < W; x += 40){ g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, H); g.stroke(); }
+  for(let y = 40; y < H; y += 40){ g.beginPath(); g.moveTo(0, y + .5); g.lineTo(W, y + .5); g.stroke(); }
+
+  // border
+  g.strokeStyle = 'rgba(255,255,255,.075)'; g.lineWidth = 2;
+  rr(g, 1, 1, W - 2, H - 2, 0); g.stroke();
+
+  /* ---- header: brand ---- */
+  rr(g, 60, 44, 34, 34, 9);
+  g.fillStyle = 'rgba(255,77,79,.14)'; g.fill();
+  g.strokeStyle = 'rgba(255,77,79,.55)'; g.lineWidth = 1.5; g.stroke();
+  // shield check
+  g.strokeStyle = '#ff4d4f'; g.lineWidth = 2.2; g.lineCap = 'round'; g.lineJoin = 'round';
+  g.beginPath();
+  g.moveTo(70, 55); g.lineTo(70, 63); g.quadraticCurveTo(70, 69, 77, 71);
+  g.quadraticCurveTo(84, 69, 84, 63); g.lineTo(84, 55);
+  g.stroke();
+  g.beginPath(); g.moveTo(73, 62.5); g.lineTo(76.5, 66.5); g.lineTo(81, 59.5); g.stroke();
+
+  g.textBaseline = 'alphabetic';
+  g.fillStyle = '#e9ebf2';
+  g.font = '600 22px ' + SANS;
+  g.fillText('ApproveGuard', 106, 68);
+
+  const brandW = g.measureText('ApproveGuard').width;
+  g.fillStyle = 'rgba(255,255,255,.055)';
+  rr(g, 106 + brandW + 12, 46, 104, 26, 13); g.fill();
+  g.fillStyle = '#8a90a0';
+  g.font = '400 12px ' + SANS;
+  g.fillText('WALLET CHECK', 106 + brandW + 24, 63);
+
+  // top-right: address + date
+  g.textAlign = 'right';
+  g.fillStyle = '#5d6373';
+  g.font = '400 15px ' + MONO;
+  g.fillText(addr ? short(addr) : '', W - 60, 62);
+  g.font = '400 12px ' + SANS;
+  g.fillText('scanned ' + new Date().toLocaleDateString('sv-SE'), W - 60, 84);
+  g.textAlign = 'left';
+
+  /* ---- body ---- */
+  const clean = d.nApp === 0;
+  const usdTxt = d.exp.usd > 0 ? fmtUsd(d.exp.usd) : '$0';
+
+  g.fillStyle = '#8a90a0';
+  g.font = '400 15px ' + SANS;
+  try{ g.letterSpacing = '2px'; }catch(e){}
+  g.fillText(clean ? 'OPEN APPROVALS' : 'EXPOSURE · PRICED ASSETS', 60, 168);
+  try{ g.letterSpacing = '0px'; }catch(e){}
+
+  if(clean){
+    g.fillStyle = '#4ade80';
+    g.font = '600 84px ' + SANS;
+    g.fillText('CLEAN', 60, 268);
+    g.fillStyle = '#8a90a0';
+    g.font = '400 20px ' + SANS;
+    g.fillText('No token or NFT approvals left open on these 5 chains.', 60, 316);
+  }else{
+    g.fillStyle = d.exp.usd > 0 ? '#ff4d4f' : '#ffd166';
+    g.textAlign = 'left';
+    drawTight(g, usdTxt, 56, 282, '700 116px "Segoe UI", Arial, "Helvetica Neue", sans-serif',
+      d.exp.usd > 0 ? '#ff4d4f' : '#ffd166', 116);
+
+    g.fillStyle = '#9aa0b0';
+    g.font = '400 20px ' + SANS;
+    g.fillText(d.exp.usd > 0
+      ? 'Any of these contracts can move this out in a single transaction.'
+      : 'Nothing priced to take today — but the approvals are live.', 60, 326);
+  }
+
+  // divider
+  g.strokeStyle = 'rgba(255,255,255,.075)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(60, 368.5); g.lineTo(W - 60, 368.5); g.stroke();
+
+  /* ---- four data columns ---- */
+  const cols = [
+    {k:'OLDEST APPROVAL', v: d.oldest ? ageShort(d.oldest.age) : '—', c:'#e9ebf2'},
+    {k:'OPEN APPROVALS', v: String(d.nApp), c:'#e9ebf2'},
+    {k:'UNLIMITED', v: String(d.nUnl), c:'#ff9f43'},
+    {k:'FLAGGED', v: String(d.nBad), c:'#ff4d4f'}
+  ];
+  const xs = [60, 340, 610, 870];
+  cols.forEach((c, i) => {
+    g.fillStyle = '#5d6373';
+    g.font = '400 13px ' + SANS;
+    try{ g.letterSpacing = '1px'; }catch(e){}
+    g.fillText(c.k, xs[i], 404);
+    try{ g.letterSpacing = '0px'; }catch(e){}
+    g.fillStyle = c.c;
+    g.font = '600 32px ' + SANS;
+    g.fillText(c.v, xs[i], 452);
+  });
+
+  // the name behind the oldest approval hits harder than the number
+  if(d.oldest){
+    let nm = (d.oldest.ap.address_info || {}).contract_name || UNKNOWN;
+    g.font = '400 12px ' + SANS;
+    while(nm.length > 3 && g.measureText(nm).width > 250) nm = nm.slice(0, -2);
+    if(nm !== ((d.oldest.ap.address_info || {}).contract_name || UNKNOWN)) nm += '…';
+    g.fillStyle = '#4b5162';
+    g.fillText('signed to ' + nm, 60, 476);
+  }
+
+  // detail line
+  g.fillStyle = '#4b5162';
+  g.font = '400 13px ' + SANS;
+  g.fillText('5 chains · ' + pl(d.nTok, 'token', 'tokens') + ' · ' + pl(d.nNft, 'NFT collection', 'NFT collections')
+    + (d.exp.unpricedCount ? ' · ' + d.exp.unpricedCount + ' unpriced excluded' : ''), 60, 506);
+
+  /* ---- footer ---- */
+  g.strokeStyle = 'rgba(255,255,255,.055)';
+  g.beginPath(); g.moveTo(60, 536.5); g.lineTo(W - 60, 536.5); g.stroke();
+
+  g.fillStyle = '#5d6373';
+  g.font = '400 14px ' + SANS;
+  g.fillText('Read-only scan · no private keys · address never uploaded', 60, 578);
+
+  g.textAlign = 'right';
+  g.fillStyle = '#4a9eff';
+  g.font = '600 17px ' + MONO;
+  g.fillText('approveguard.app.workbuddy.host', W - 60, 578);
+  g.textAlign = 'left';
+
+  return cv;
+}
+
+function openCard(){
+  try{
+    const cv = drawCard();
+    cv.toBlob(blob => {
+      if(!blob){ showErr('Could not generate the image. Try a different browser.'); return; }
+      if(CARD.url) URL.revokeObjectURL(CARD.url);
+      CARD.blob = blob;
+      CARD.url = URL.createObjectURL(blob);
+      $('cardimg').src = CARD.url;
+      $('cardbg').classList.add('on');
+    }, 'image/png');
+  }catch(e){
+    showErr('Could not generate the image: ' + ((e && e.message) || 'unknown error'));
+  }
+}
+
+function closeCard(){
+  $('cardbg').classList.remove('on');
+}
+
+function downloadCard(){
+  if(!CARD.blob) return;
+  const a = document.createElement('a');
+  a.href = CARD.url;
+  a.download = 'approveguard-' + (STATE.addr ? short(STATE.addr).replace('…', '-') : 'report') + '.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+async function copyCard(){
+  if(!CARD.blob) return;
+  try{
+    if(!navigator.clipboard || !window.ClipboardItem) throw new Error('clipboard images unsupported');
+    await navigator.clipboard.write([new ClipboardItem({'image/png': CARD.blob})]);
+    $('cardcp').textContent = 'Copied ✓';
+    setTimeout(() => { $('cardcp').textContent = 'Copy image'; }, 1800);
+  }catch(e){
+    $('cardcp').textContent = 'Copy failed — download instead';
+    setTimeout(() => { $('cardcp').textContent = 'Copy image'; }, 2400);
+  }
+}
+
+/* ---------- list ---------- */
+function drawList(){
+  const f = STATE.filter;
+  const shown = STATE.rows.filter(r => {
+    if(f === 'high') return r.risk.level === 'critical' || r.risk.level === 'high';
+    if(f === 'unlimited') return r.risk.scope === 'unlimited';
+    if(f === 'old') return (r.age || 0) > 730;
+    if(f === 'nft') return r.kind !== 'erc20';
+    return true;
+  });
+
+  if(!shown.length){
+    $('rows').innerHTML = `<div class="empty" style="padding:38px 20px">Nothing in this filter.</div>`;
+    return;
+  }
+
+  let html = '';
+  shown.forEach(r => {
+    const a = r.token, ap = r.ap, info = ap.address_info || {};
+    const isNft = r.kind !== 'erc20';
+    const spenderName = info.contract_name || (info.tag ? info.tag : UNKNOWN);
+
+    let sym, sub, amtTxt, amtCls, usdBadge = '';
+    if(isNft){
+      sym = a.nft_symbol || a.nft_name || 'NFT';
+      const forAll = r.kind === 'erc1155' ? true : Number(ap.approved_for_all) === 1;
+      sub = `${r.chain.short} · ${r.kind === 'erc721' ? 'ERC-721' : 'ERC-1155'}`;
+      amtTxt = forAll ? 'All' : ('#' + ap.approved_token_id);
+      amtCls = forAll ? 'b-inf' : (r.risk.level === 'medium' ? 'b-med' : 'b-ok');
+    }else{
+      sym = a.token_symbol || '?';
+      const unlimited = isUnlimited(ap.approved_amount);
+      sub = `${r.chain.short} · bal ${fmtBal(a.balance)}`;
+      amtTxt = fmtAmt(ap.approved_amount);
+      amtCls = unlimited ? 'b-inf' : (Number(a.balance || 0) > 0 ? 'b-med' : 'b-ok');
+      const bal = Number(a.balance || 0);
+      const px = priceOf(sym);
+      if(bal > 0 && px){ usdBadge = `<span class="badge b-usd">${esc(fmtUsd(bal * px))}</span>`; }
+    }
+
+    const ageB = (r.age != null) ? `<span class="badge b-age" title="approval age">${esc(ageShort(r.age))}</span>` : '';
+
+    html += `
+    <div class="row ${r.risk.level}" data-key="${esc(rowKey(r))}">
+      <div class="tk">
+        <b title="${esc(isNft ? (a.nft_name || a.nft_symbol) : a.token_name)}">${esc(sym)}</b>
+        <i>${esc(sub)}</i>
+      </div>
+      <div class="to">
+        <b title="${esc(spenderName)}">${esc(spenderName)}</b>
+        <i>${esc(short(ap.approved_contract))}</i>
+      </div>
+      <div class="meta">
+        ${usdBadge}
+        <span class="badge ${amtCls}" title="allowance">${esc(amtTxt)}</span>
+        ${ageB}
+        <span class="badge ${r.risk.cls}" title="${esc(r.risk.why)}" data-why="${esc(r.risk.why)}">${esc(r.risk.label)}</span>
+      </div>
+      <button class="revoke" data-kind="${esc(r.kind)}" data-asset="${esc(isNft ? a.nft_address : a.token_address)}"
+        data-spender="${esc(ap.approved_contract)}" data-sym="${esc(sym)}" data-chain="${r.chain.id}"
+        data-name="${esc(spenderName)}" data-forall="${isNft ? (r.kind === 'erc1155' ? 1 : (Number(ap.approved_for_all) === 1 ? 1 : 0)) : 0}"
+        data-tid="${esc(ap.approved_token_id == null ? '' : ap.approved_token_id)}">Revoke</button>
+    </div>`;
+  });
+
+  $('rows').innerHTML = html;
+
+  $('rows').querySelectorAll('.revoke').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openModal({
+        kind: btn.dataset.kind, asset: btn.dataset.asset, spender: btn.dataset.spender,
+        sym: btn.dataset.sym, chain: Number(btn.dataset.chain),
+        name: btn.dataset.name, forAll: btn.dataset.forall === '1',
+        tid: btn.dataset.tid, el: btn
+      });
+    });
+  });
+}
+
+/* ---------- local history (localStorage, only in the user's own browser) ---------- */
+const HIST_PREFIX = 'ag:hist:';
+const HIST_DAYS = 120;
+
+function agoText(ms){
+  const d = ms / 86400000;
+  if(d < 1/24) return 'just now';
+  if(d < 1) return pl(Math.floor(d * 24), 'hour', 'hours') + ' ago';
+  if(d < 30) return pl(Math.floor(d), 'day', 'days') + ' ago';
+  if(d < 365) return pl(Math.floor(d / 30), 'month', 'months') + ' ago';
+  return pl(Math.floor(d / 365), 'year', 'years') + ' ago';
+}
+
+function loadHist(addr){
+  try{
+    const v = localStorage.getItem(HIST_PREFIX + String(addr).toLowerCase());
+    if(!v) return null;
+    const o = JSON.parse(v);
+    if(!o || !Array.isArray(o.keys)) return null;
+    if(Date.now() - o.t > HIST_DAYS * 86400000) return null;
+    return o;
+  }catch(e){ return null; }
+}
+
+function saveHist(addr, rows, nUnl, nBad, usd){
+  try{
+    localStorage.setItem(HIST_PREFIX + String(addr).toLowerCase(), JSON.stringify({
+      t: Date.now(), keys: rows.map(rowKey), n: rows.length, unl: nUnl, bad: nBad, usd: usd || 0
+    }));
+  }catch(e){}
+}
+
+/* must run before saveHist, otherwise it compares against the copy just written */
+function histLine(addr, rows){
+  const prev = loadHist(addr);
+  if(!prev) return '';
+  const now = new Set(rows.map(rowKey));
+  const old = new Set(prev.keys);
+  let added = 0, gone = 0;
+  now.forEach(k => { if(!old.has(k)) added++; });
+  old.forEach(k => { if(!now.has(k)) gone++; });
+
+  const when = agoText(Date.now() - prev.t);
+  let txt;
+  if(!added && !gone) txt = `Since your last check (${when}): <b>no change</b>.`;
+  else{
+    const p = [];
+    if(added) p.push(`<b class="a">${pl(added, 'new approval', 'new approvals')}</b>`);
+    if(gone) p.push(`<b class="r">${gone} revoked</b>`);
+    txt = `Since your last check (${when}): ${p.join(' · ')}.`;
+  }
+  return `<div class="hist">${txt}<span class="n"> Stored only in this browser.</span></div>`;
+}
+
+/* ---------- batch revoke (one signature at a time, nothing custodial) ---------- */
+const Q = { items:[], done:0, ok:0, fail:0, running:false, stop:false, stopping:false };
+
+function itemOf(r){
+  const isNft = r.kind !== 'erc20';
+  const forAll = isNft ? (r.kind === 'erc1155' ? true : Number(r.ap.approved_for_all) === 1) : false;
+  return {
+    key: rowKey(r), kind: r.kind, asset: assetOf(r), spender: r.ap.approved_contract,
+    sym: isNft ? (r.token.nft_symbol || r.token.nft_name || 'NFT') : (r.token.token_symbol || '?'),
+    chain: r.chain.id,
+    name: (r.ap.address_info || {}).contract_name || (r.ap.address_info || {}).tag || UNKNOWN,
+    forAll, tid: r.ap.approved_token_id == null ? '' : String(r.ap.approved_token_id)
+  };
+}
+
+function pickRows(mode){
+  return STATE.rows.filter(r => {
+    if(mode === 'high') return r.risk.level === 'critical' || r.risk.level === 'high';
+    if(mode === 'unlimited') return r.risk.scope === 'unlimited';
+    if(mode === 'old') return (r.age || 0) > 730;
+    return false;
+  });
+}
+
+function openQueue(mode){
+  const rows = pickRows(mode);
+  if(!rows.length) return;
+  if(!window.ethereum){
+    showErr('Batch revoke needs a browser wallet. No wallet detected — install MetaMask or revoke them one at a time.');
+    return;
+  }
+  Q.items = rows.map(itemOf);
+  $('qmtitle').textContent = 'Revoke ' + pl(Q.items.length, 'approval', 'approvals');
+  $('qmsub').innerHTML = 'Your wallet will ask for <b>' + Q.items.length + '</b> confirmations in a row — one per approval.';
+  $('qmlist').innerHTML = Q.items.map((it, i) =>
+    `<div class="qmi"><span>${i+1}</span><b>${esc(it.sym)}</b><i>${esc(it.name)}</i></div>`).join('');
+  $('qbg').classList.add('on');
+}
+
+function closeQueue(){ $('qbg').classList.remove('on'); }
+
+function paintQ(){
+  const total = Q.items.length;
+  const pct = total ? Math.round(Q.done / total * 100) : 0;
+  $('qcount').textContent = Q.done + ' / ' + total;
+  $('qbar').style.width = pct + '%';
+}
+
+function markRowDone(key){
+  const el = document.querySelector('.row[data-key="' + key.replace(/"/g, '\\"') + '"]');
+  if(!el) return;
+  el.classList.add('done');
+  const b = el.querySelector('.revoke');
+  if(b){ b.textContent = 'Submitted'; b.disabled = true; }
+}
+
+async function runQueue(){
+  if(Q.running || !Q.items.length) return;
+  Q.running = true; Q.done = 0; Q.ok = 0; Q.fail = 0; Q.stop = false;
+  $('qp').classList.add('on');
+  $('qstop').style.display = '';
+  $('qdone').style.display = 'none';
+  $('qtitle').textContent = 'Revoking one by one';
+  paintQ();
+
+  for(let i = 0; i < Q.items.length; i++){
+    if(Q.stop) break;
+    const it = Q.items[i];
+    $('qsub').textContent = 'Working on ' + (i+1) + '. ' + it.sym + ' → ' + it.name;
+    try{
+      await sendRevoke(it);
+      Q.ok++;
+      markRowDone(it.key);
+    }catch(err){
+      Q.fail++;
+      if(err && err.code === 4001){
+        Q.stop = true;
+        $('qsub').textContent = 'You cancelled #' + (i+1) + ' in your wallet. Stopped.';
+      }else{
+        Q.stop = true;
+        $('qsub').textContent = '#' + (i+1) + ' failed: ' + ((err && err.message) || 'unknown error') + '. Stopped.';
+      }
+    }
+    Q.done = i + 1;
+    paintQ();
+    if(!Q.stop && i < Q.items.length - 1) await new Promise(r => setTimeout(r, 900));
+  }
+
+  Q.running = false;
+  $('qstop').style.display = 'none';
+  $('qdone').style.display = '';
+  $('qtitle').textContent = 'Batch revoke finished';
+  if(Q.fail === 0){
+    $('qsub').textContent = pl(Q.ok, 'approval', 'approvals') + ' submitted, all accepted by your wallet. Rescan once they land onchain.';
+  }else{
+    $('qsub').textContent = Q.ok + ' submitted, ' + Q.fail + ' failed or skipped. You can run the rest again.';
+  }
+  paintQ();
+}
+
+/* ---------- revoke ---------- */
+let pending = null;
+function openModal(d){
+  pending = d;
+  const chain = CHAINS.find(c => c.id === d.chain) || CHAINS[0];
+  const isNft = d.kind !== 'erc20';
+  $('mtitle').textContent = 'Revoke ' + (d.sym || (isNft ? 'NFT' : 'token')) + ' approval';
+
+  let action;
+  if(!isNft) action = `Set the allowance <code>${esc(d.sym)}</code> granted to <code>${esc(d.name)}</code> back to zero.`;
+  else if(d.kind === 'erc721' && !d.forAll) action = `Revoke <code>${esc(d.sym)}</code> #${esc(d.tid)} from <code>${esc(d.name)}</code>.`;
+  else action = `Remove <code>${esc(d.name)}</code>'s control over the <b style="color:var(--high)">entire ${esc(d.sym)} collection</b>.`;
+
+  $('mbody').innerHTML = action + `<br>Network: ${esc(chain.name)}<br>Spender: <code>${esc(d.spender)}</code>`;
+  $('mbg').classList.add('on');
+}
+
+function closeModal(){ $('mbg').classList.remove('on'); pending = null; }
+
+function calldata(d){
+  const pad = s => s.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+  const zero = '0'.repeat(64);
+  if(d.kind === 'erc20') return SEL.approve + pad(d.spender) + zero;
+  if(d.kind === 'erc721' && !d.forAll){
+    let tid = '0';
+    try{ tid = BigInt(d.tid).toString(16); }catch(e){ tid = '0'; }
+    return SEL.approve + zero + tid.padStart(64, '0');
+  }
+  return SEL.setForAll + pad(d.spender) + zero;
+}
+
+async function switchChain(chain){
+  try{
+    await window.ethereum.request({method:'wallet_switchEthereumChain', params:[{chainId: chain.hex}]});
+  }catch(e){
+    if(e && e.code === 4902) throw new Error(chain.name + ' is not added in your wallet yet');
+    if(e && e.code === 4001) throw new Error('You cancelled the network switch');
+    throw e;
+  }
+}
+
+/* single and batch revoke share this path: switch chain → request address → send tx */
+async function sendRevoke(d){
+  if(!window.ethereum) throw new Error('No browser wallet detected');
+  const chain = CHAINS.find(c => c.id === d.chain) || CHAINS[0];
+  await switchChain(chain);
+  const accts = await window.ethereum.request({method:'eth_requestAccounts'});
+  if(!accts || !accts[0]) throw new Error('No wallet address returned');
+  return window.ethereum.request({
+    method:'eth_sendTransaction',
+    params:[{from: accts[0], to: d.asset, data: calldata(d)}]
+  });
+}
+
+async function doRevoke(){
+  const d = pending;
+  if(!d) return;
+  if(!window.ethereum){
+    closeModal();
+    showErr('No browser wallet detected. Install MetaMask or another wallet, or revoke manually on revoke.cash.');
+    return;
+  }
+  const okBtn = $('mok');
+  okBtn.disabled = true; okBtn.textContent = 'Working…';
+  try{
+    await sendRevoke(d);
+    closeModal();
+    d.el.disabled = true; d.el.textContent = 'Submitted';
+    d.el.style.color = 'var(--low)'; d.el.style.borderColor = 'rgba(74,222,128,.35)';
+  }catch(err){
+    showErr('Revocation failed: ' + ((err && err.message) || 'unknown error'));
+    closeModal();
+  }finally{
+    okBtn.disabled = false; okBtn.textContent = 'Confirm revoke';
+  }
+}
+
+/* ---------- events ---------- */
+$('go').addEventListener('click', () => {
+  const raw = $('addr').value.trim();
+  if(!/^0x[a-fA-F0-9]{40}$/.test(raw)){
+    showErr('That does not look like an address. It needs to be 0x followed by 40 hex characters.');
+    return;
+  }
+  scan(raw);
+});
+$('addr').addEventListener('keydown', e => { if(e.key === 'Enter') $('go').click(); });
+$('mcancel').addEventListener('click', closeModal);
+$('mok').addEventListener('click', doRevoke);
+$('mbg').addEventListener('click', e => { if(e.target === $('mbg')) closeModal(); });
+$('cardclose').addEventListener('click', closeCard);
+$('carddl').addEventListener('click', downloadCard);
+$('cardcp').addEventListener('click', copyCard);
+$('cardbg').addEventListener('click', e => { if(e.target === $('cardbg')) closeCard(); });
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ closeModal(); closeCard(); closeQueue(); $('why').classList.remove('on'); }
+});
+
+$('qmcancel').addEventListener('click', closeQueue);
+$('qbg').addEventListener('click', e => { if(e.target === $('qbg')) closeQueue(); });
+
+/* hover does not exist on mobile, so the risk badge opens the explanation on tap */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-why]');
+  if(!b || !b.dataset.why) return;
+  $('whybody').textContent = b.dataset.why;
+  $('why').classList.add('on');
+});
+$('whyclose').addEventListener('click', () => $('why').classList.remove('on'));
+$('qmstart').addEventListener('click', () => { closeQueue(); runQueue(); });
+$('qstop').addEventListener('click', () => {
+  Q.stop = true;
+  $('qstop').disabled = true;
+  $('qsub').textContent = 'Stopping after this one finishes…';
+});
+$('qdone').addEventListener('click', () => {
+  $('qp').classList.remove('on');
+  $('qstop').disabled = false;
+  if(STATE.addr){
+    bustCache(STATE.addr);
+    $('addr').value = STATE.addr;
+    scan(STATE.addr);
+  }
+});
+
+/* read-only address: no signature request, no transaction */
+/* ---------- wallet connection ----------
+   The old version checked window.ethereum once at script time: with several
+   wallet extensions installed it could grab the wrong provider, and if the
+   injection landed a beat late the button never appeared at all. Failures also
+   collapsed into one vague message, so "not installed" and "you declined" and
+   "the wallet is stuck" all looked identical. Discover via EIP-6963, fall back
+   to the legacy injection, and split the error codes apart. */
+const walletBtn = $('pickWallet');
+const walletLabel = walletBtn.querySelector('.wt');
+let walletProvider = null;
+
+function walletReady(provider, name){
+  if(walletProvider) return;
+  walletProvider = provider;
+  walletBtn.disabled = false;
+  walletLabel.textContent = name ? 'Connect ' + name + ' to read address' : 'Connect wallet to read address';
+}
+
+window.addEventListener('eip6963:announceProvider', e => {
+  const d = e.detail || {};
+  walletReady(d.provider, (d.info && d.info.name) || '');
+});
+try{ window.dispatchEvent(new Event('eip6963:requestProvider')); }catch(e){}
+
+[0, 300, 1200].forEach(ms => setTimeout(() => {
+  if(!walletProvider && window.ethereum) walletReady(window.ethereum, 'browser wallet');
+}, ms));
+
+/* Still nothing after three seconds: say why on the button itself instead of
+   leaving behind a dead control */
+setTimeout(() => {
+  if(walletProvider) return;
+  if(window.ethereum){ walletReady(window.ethereum, 'browser wallet'); return; }
+  walletLabel.textContent = 'No browser wallet detected';
+  const sub = walletBtn.querySelector('.ws');
+  if(sub) sub.textContent = 'pasting an address works too';
+}, 3000);
+
+walletBtn.addEventListener('click', async () => {
+  showErr('');
+  const p = walletProvider || window.ethereum;
+  if(!p){
+    showErr('No browser wallet extension detected. Paste your address into the field above — that works just as well.');
+    return;
+  }
+  const old = walletLabel.textContent;
+  walletBtn.disabled = true;
+  walletLabel.textContent = 'Waiting for your wallet…';
+  let timer;
+  try{
+    const accts = await Promise.race([
+      p.request({method:'eth_requestAccounts'}),
+      new Promise((_, rej) => {
+        timer = setTimeout(() => rej(Object.assign(new Error('timeout'), {code:'TIMEOUT'})), 12000);
+      }),
+    ]);
+    if(accts && accts[0]){
+      $('addr').value = accts[0];
+      scan(accts[0]);
+    }else{
+      showErr('Your wallet returned no address. Unlock the extension and try again.');
+    }
+  }catch(e){
+    const code = e && e.code;
+    if(code === 4001) showErr('You cancelled the connection in your wallet.');
+    else if(code === -32002) showErr('Your wallet already has a request pending. Open the extension, clear it, then click again.');
+    else if(code === 4100) showErr('Your wallet refused this request. Approve this site inside the wallet first.');
+    else if(code === 'TIMEOUT') showErr('No response from the wallet after 12 seconds. Make sure the extension is unlocked and the popup was not blocked, then try again.');
+    else showErr('Could not read the wallet address: ' + ((e && e.message) || 'unknown error') + '. Pasting the address also works.');
+  }finally{
+    clearTimeout(timer);
+    walletLabel.textContent = old;
+    walletBtn.disabled = false;
+  }
+});
+
+/* pasting a whole tweet or chat message should still find the address */
+$('addr').addEventListener('input', e => {
+  const v = String(e.target.value || '');
+  if(v.length <= 42) return;
+  const m = v.match(/0x[a-fA-F0-9]{40}/);
+  if(m && m[0] !== v.trim()) e.target.value = m[0];
+});
+
+function showErr(msg){
+  const e = $('err');
+  if(!msg){ e.style.display='none'; e.textContent=''; return; }
+  e.style.display='block'; e.textContent = msg;
+}
+
+$('chains').innerHTML = CHAINS.map(c =>
+  `<div class="chip"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</div>`
+).join('');
+
+const qs = new URLSearchParams(location.search);
+const qa = (qs.get('addr') || '').trim();
+if(/^0x[a-fA-F0-9]{40}$/.test(qa)){
+  $('addr').value = qa;
+  scan(qa);
+}else{
+  try{
+    const last = localStorage.getItem('ag:last');
+    if(last && /^0x[a-fA-F0-9]{40}$/.test(last)) $('addr').value = last;
+  }catch(e){}
+}
+
+/* hosted static pages need the sharecode query on every path, so carry it across in-site links
+   (match .html with or without a #anchor, skip external URLs, in-page anchors and links that already carry a query) */
+document.querySelectorAll('a[href]').forEach(function(a){
+  var raw = a.getAttribute('href');
+  if(!raw || raw.indexOf('://') > -1 || raw.charAt(0) === '#' || raw.indexOf('?') > -1) return;
+  var m = raw.match(/^([^#]*\.html)(#.*)?$/);
+  if(!m) return;
+  a.setAttribute('href', m[1] + location.search + (m[2] || ''));
+});
+</script>
+</body>
+</html>
